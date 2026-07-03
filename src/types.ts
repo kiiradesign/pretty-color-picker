@@ -8,6 +8,8 @@ export interface OklchColor {
 
 export type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'oklch'
 
+export type PickerTheme = 'dark' | 'light' | 'system'
+
 export type PickerPlaneMode = 'oklch' | 'hsl' | 'rgb'
 
 export interface FormatField {

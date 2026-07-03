@@ -42,6 +42,8 @@ export declare function parseFormatFields(format: ColorFormat, fields: Record<st
 
 export declare type PickerPlaneMode = 'oklch' | 'hsl' | 'rgb';
 
+export declare type PickerTheme = 'dark' | 'light' | 'system';
+
 export declare class PrettyColorPicker extends HTMLElement {
     #private;
     static get observedAttributes(): string[];
@@ -53,6 +55,8 @@ export declare class PrettyColorPicker extends HTMLElement {
     set value(v: string);
     get color(): OklchColor;
     set color(c: OklchColor);
+    get theme(): PickerTheme;
+    set theme(value: PickerTheme);
 }
 
 export { }

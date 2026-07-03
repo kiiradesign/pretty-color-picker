@@ -5,6 +5,7 @@ export type {
   FormatField,
   OklchColor,
   PickerPlaneMode,
+  PickerTheme,
 } from './types'
 export { DEFAULT_COLOR } from './types'
 export {

@@ -21,6 +21,7 @@ import {
   type ColorChangeDetail,
   type ColorFormat,
   type OklchColor,
+  type PickerTheme,
 } from './types'
 
 const FORMATS: ColorFormat[] = ['hex', 'rgb', 'hsl', 'oklch']
@@ -33,7 +34,7 @@ const FORMAT_LABELS: Record<ColorFormat, string> = {
 
 export class PrettyColorPicker extends HTMLElement {
   static get observedAttributes(): string[] {
-    return ['value']
+    return ['value', 'theme']
   }
 
   #shadow: ShadowRoot
@@ -101,6 +102,16 @@ export class PrettyColorPicker extends HTMLElement {
   set color(c: OklchColor) {
     this.#color = normalizeOklch(c)
     this.#refreshAll()
+  }
+
+  get theme(): PickerTheme {
+    const value = this.getAttribute('theme')
+    if (value === 'light' || value === 'system') return value
+    return 'dark'
+  }
+
+  set theme(value: PickerTheme) {
+    this.setAttribute('theme', value)
   }
 
   #applyValueAttribute(): void {

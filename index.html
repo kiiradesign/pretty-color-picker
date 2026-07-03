@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pretty Color Picker</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap"
+    />
     <style>
       * {
         box-sizing: border-box;
@@ -14,20 +18,72 @@
         min-height: 100vh;
         display: grid;
         place-items: center;
-        background: #000;
+        background: var(--demo-bg);
         font-family: 'Geist', system-ui, sans-serif;
+        transition: background 150ms cubic-bezier(0.175, 0.885, 0.32, 1.1);
+      }
+
+      body[data-theme='dark'] {
+        --demo-bg: #000000;
+        --demo-toggle-bg: #1a1a1a;
+        --demo-toggle-border: #2e2e2e;
+        --demo-toggle-text: #a0a0a0;
+        --demo-toggle-active-bg: #292929;
+        --demo-toggle-active-text: #ededed;
+      }
+
+      body[data-theme='light'] {
+        --demo-bg: #fafafa;
+        --demo-toggle-bg: #ffffff;
+        --demo-toggle-border: #eaeaea;
+        --demo-toggle-text: #4d4d4d;
+        --demo-toggle-active-bg: #f2f2f2;
+        --demo-toggle-active-text: #171717;
       }
 
       .demo-wrap {
         display: flex;
         flex-direction: column;
         align-items: center;
+        gap: 16px;
+      }
+
+      .demo-theme {
+        display: flex;
+        gap: 4px;
+        padding: 2px;
+        border: 1px solid var(--demo-toggle-border);
+        border-radius: 6px;
+        background: var(--demo-toggle-bg);
+      }
+
+      .demo-theme button {
+        padding: 6px 12px;
+        font-family: inherit;
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 16px;
+        color: var(--demo-toggle-text);
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      .demo-theme button[data-active='true'] {
+        color: var(--demo-toggle-active-text);
+        background: var(--demo-toggle-active-bg);
       }
     </style>
   </head>
-  <body>
+  <body data-theme="dark">
     <div class="demo-wrap">
-      <pretty-color-picker value="oklch(62% 0.24 303 / 80%)"></pretty-color-picker>
+      <div class="demo-theme" role="group" aria-label="Theme">
+        <button type="button" data-theme-option="dark" data-active="true">Dark</button>
+        <button type="button" data-theme-option="light">Light</button>
+        <button type="button" data-theme-option="system">System</button>
+      </div>
+      <pretty-color-picker value="oklch(62% 0.24 303 / 80%)" theme="dark"></pretty-color-picker>
     </div>
     <script type="module" src="/demo/main.ts"></script>
   </body>
