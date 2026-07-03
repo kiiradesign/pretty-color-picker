@@ -22,28 +22,12 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 24px;
-      }
-
-      .demo-output {
-        font-family: 'Geist Mono', monospace;
-        font-size: 13px;
-        color: #a0a0a0;
-        text-align: center;
-      }
-
-      .demo-output strong {
-        color: #ededed;
-        font-weight: 500;
       }
     </style>
   </head>
   <body>
     <div class="demo-wrap">
       <pretty-color-picker value="oklch(62% 0.24 303 / 80%)"></pretty-color-picker>
-      <p class="demo-output">
-        OKLCH: <strong id="output">—</strong>
-      </p>
     </div>
     <script type="module" src="/demo/main.ts"></script>
   </body>

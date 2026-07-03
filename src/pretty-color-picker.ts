@@ -117,8 +117,17 @@ export class PrettyColorPicker extends HTMLElement {
       <style>${styles}</style>
       <div class="pcp" part="container">
         <header class="pcp-header">
-          <h2 class="pcp-title">Color Picker</h2>
-          <button type="button" class="pcp-close" aria-label="Close">×</button>
+          <h2 class="pcp-title">Pretty Color Picker</h2>
+          <button type="button" class="pcp-close" aria-label="Close">
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path
+                d="M4.25 4.25L11.75 11.75M11.75 4.25L4.25 11.75"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
         </header>
         <div class="pcp-plane-wrap pcp-clip">
           <canvas class="pcp-plane" width="320" height="240" aria-label="Color plane"></canvas>
