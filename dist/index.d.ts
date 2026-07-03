@@ -61,6 +61,8 @@ export declare class PrettyColorPicker extends HTMLElement {
     set theme(value: PickerTheme);
     get headerAction(): PickerHeaderAction;
     set headerAction(value: PickerHeaderAction);
+    get movable(): boolean;
+    set movable(value: boolean);
 }
 
 export declare interface ThemeChangeDetail {

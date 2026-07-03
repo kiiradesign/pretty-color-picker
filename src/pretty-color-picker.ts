@@ -24,6 +24,7 @@ import {
   type Rgb255,
 } from './utils/contrast'
 import { bindPointerDrag } from './utils/pointer'
+import { bindPanelDrag, centerPanel } from './utils/panel-drag'
 import {
   DEFAULT_COLOR,
   type ColorChangeDetail,
@@ -48,7 +49,7 @@ const FORMAT_LABELS: Record<ColorFormat, string> = {
 
 export class PrettyColorPicker extends HTMLElement {
   static get observedAttributes(): string[] {
-    return ['value', 'theme', 'header-action']
+    return ['value', 'theme', 'header-action', 'movable']
   }
 
   #shadow: ShadowRoot
@@ -72,6 +73,7 @@ export class PrettyColorPicker extends HTMLElement {
   #alphaInput!: HTMLInputElement
   #historyContainer!: HTMLElement
   #themeToggleBtn: HTMLButtonElement | null = null
+  #movableCleanup: (() => void) | null = null
 
   constructor() {
     super()
@@ -102,6 +104,9 @@ export class PrettyColorPicker extends HTMLElement {
     }
     if (name === 'theme') {
       this.#updateThemeToggleButton()
+    }
+    if (name === 'movable') {
+      this.#syncMovable()
     }
   }
 
@@ -142,6 +147,15 @@ export class PrettyColorPicker extends HTMLElement {
 
   set headerAction(value: PickerHeaderAction) {
     this.setAttribute('header-action', value)
+  }
+
+  get movable(): boolean {
+    return this.hasAttribute('movable')
+  }
+
+  set movable(value: boolean) {
+    if (value) this.setAttribute('movable', '')
+    else this.removeAttribute('movable')
   }
 
   #applyValueAttribute(): void {
@@ -282,6 +296,39 @@ export class PrettyColorPicker extends HTMLElement {
     this.#alphaInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') this.#onAlphaInput()
     })
+
+    this.#syncMovable()
+  }
+
+  #syncMovable(): void {
+    if (this.#movableCleanup) {
+      const idx = this.#cleanups.indexOf(this.#movableCleanup)
+      if (idx >= 0) this.#cleanups.splice(idx, 1)
+      this.#movableCleanup()
+      this.#movableCleanup = null
+    }
+
+    if (!this.movable) {
+      this.style.position = ''
+      this.style.left = ''
+      this.style.top = ''
+      this.style.zIndex = ''
+      this.removeAttribute('data-positioned')
+      return
+    }
+
+    if (!this.hasAttribute('data-positioned')) {
+      requestAnimationFrame(() => {
+        centerPanel(this)
+        this.setAttribute('data-positioned', '')
+      })
+    }
+
+    const header = this.#shadow.querySelector('.pcp-header')
+    if (!header) return
+
+    this.#movableCleanup = bindPanelDrag(header as HTMLElement, this)
+    this.#cleanups.push(this.#movableCleanup)
   }
 
   #captureEditStart(): void {

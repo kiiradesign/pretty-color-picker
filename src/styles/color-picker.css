@@ -50,6 +50,21 @@
   color: var(--pcp-text-primary);
 }
 
+:host([movable]) {
+  position: fixed;
+  z-index: 1000;
+  margin: 0;
+}
+
+:host([movable]) .pcp-header {
+  cursor: grab;
+  touch-action: none;
+}
+
+:host([movable]) .pcp-header[data-dragging='true'] {
+  cursor: grabbing;
+}
+
 /* Geist dark — https://vercel.com/design.dark.md */
 :host,
 :host([theme='dark']) {
