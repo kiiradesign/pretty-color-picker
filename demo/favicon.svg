@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .swatch {
+      fill-opacity: 0.5;
+    }
+    @media (prefers-color-scheme: dark) {
+      .swatch {
+        fill: #fff4ed;
+      }
+    }
+    @media (prefers-color-scheme: light) {
+      .swatch {
+        fill: #0c1615;
+      }
+    }
+  </style>
+  <rect class="swatch" width="32" height="32" rx="6" />
+</svg>
