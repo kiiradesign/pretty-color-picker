@@ -13,8 +13,15 @@ import {
   oklchToRgb,
   parseFormatFields,
   planePositionFromColor,
+  rgbAtHueSlider,
 } from './color/conversions'
 import { colorsEqual, loadHistory, saveToHistory } from './utils/history'
+import {
+  compositeOverChecker,
+  handleColorForRgb,
+  parseHexColor,
+  type Rgb255,
+} from './utils/contrast'
 import { bindPointerDrag } from './utils/pointer'
 import {
   DEFAULT_COLOR,
@@ -187,7 +194,7 @@ export class PrettyColorPicker extends HTMLElement {
           ${headerButton}
         </header>
         <div class="pcp-plane-wrap pcp-clip">
-          <canvas class="pcp-plane" width="256" height="192" aria-label="Color plane"></canvas>
+          <canvas class="pcp-plane" width="240" height="180" aria-label="Color plane"></canvas>
           <div class="pcp-cursor" aria-hidden="true"></div>
         </div>
         <div class="pcp-slider-wrapper">
@@ -351,6 +358,36 @@ export class PrettyColorPicker extends HTMLElement {
     handle.style.left = `max(1px, calc(${pct}% - 1.5px))`
   }
 
+  #getCheckerColors(): { base: Rgb255; tone: Rgb255 } {
+    const style = getComputedStyle(this)
+    const base =
+      parseHexColor(style.getPropertyValue('--pcp-checker-base').trim()) ?? { r: 255, g: 255, b: 255 }
+    const tone =
+      parseHexColor(style.getPropertyValue('--pcp-checker-tone').trim()) ?? { r: 204, g: 204, b: 204 }
+    return { base, tone }
+  }
+
+  #parseHandleT(handle: HTMLElement, fallback: number): number {
+    const match = handle.style.left.match(/calc\(([\d.]+)%/)
+    return match ? parseFloat(match[1]!) / 100 : fallback
+  }
+
+  #sampleSliderBackground(t: number, kind: 'hue' | 'alpha'): Rgb255 {
+    if (kind === 'hue') return rgbAtHueSlider(t)
+    const { base, tone } = this.#getCheckerColors()
+    return compositeOverChecker(oklchToRgb(this.#color), t, base, tone)
+  }
+
+  #updateSliderHandleColor(handle: HTMLElement, t: number, kind: 'hue' | 'alpha'): void {
+    const sample = this.#sampleSliderBackground(t, kind)
+    handle.style.background = handleColorForRgb(sample.r, sample.g, sample.b)
+  }
+
+  #updateSliderHandle(handle: HTMLElement, t: number, kind: 'hue' | 'alpha'): void {
+    this.#setSliderHandlePosition(handle, t)
+    this.#updateSliderHandleColor(handle, t, kind)
+  }
+
   #onPlaneMove(x: number, y: number): void {
     this.#planeCursor.dataset.dragging = 'true'
     const hue = this.#planeHue()
@@ -361,7 +398,7 @@ export class PrettyColorPicker extends HTMLElement {
   #onHueMove(x: number): void {
     this.#hueRow.dataset.active = 'true'
     this.#hueHandle.dataset.dragging = 'true'
-    this.#setSliderHandlePosition(this.#hueHandle, x)
+    this.#updateSliderHandle(this.#hueHandle, x, 'hue')
     const hue = x * 360
     this.#setColor(colorWithHue(this.#color, hue), true)
   }
@@ -370,7 +407,7 @@ export class PrettyColorPicker extends HTMLElement {
     this.#alphaRow.dataset.active = 'true'
     this.#alphaHandle.dataset.dragging = 'true'
     this.#setColor(normalizeOklch({ ...this.#color, alpha: x }), true)
-    this.#setSliderHandlePosition(this.#alphaHandle, x)
+    this.#updateSliderHandle(this.#alphaHandle, x, 'alpha')
   }
 
   #readHueFromSlider(): number {
@@ -449,12 +486,24 @@ export class PrettyColorPicker extends HTMLElement {
 
   #refreshSliders(): void {
     const hue = colorHueAngle(this.#color)
-    if (!this.#hueHandle.hasAttribute('data-dragging')) {
-      this.#setSliderHandlePosition(this.#hueHandle, hue / 360)
+    const hueT = this.#hueHandle.hasAttribute('data-dragging')
+      ? this.#parseHandleT(this.#hueHandle, hue / 360)
+      : hue / 360
+
+    if (this.#hueHandle.hasAttribute('data-dragging')) {
+      this.#updateSliderHandleColor(this.#hueHandle, hueT, 'hue')
+    } else {
+      this.#updateSliderHandle(this.#hueHandle, hueT, 'hue')
     }
 
-    if (!this.#alphaHandle.hasAttribute('data-dragging')) {
-      this.#setSliderHandlePosition(this.#alphaHandle, this.#color.alpha)
+    const alphaT = this.#alphaHandle.hasAttribute('data-dragging')
+      ? this.#parseHandleT(this.#alphaHandle, this.#color.alpha)
+      : this.#color.alpha
+
+    if (this.#alphaHandle.hasAttribute('data-dragging')) {
+      this.#updateSliderHandleColor(this.#alphaHandle, alphaT, 'alpha')
+    } else {
+      this.#updateSliderHandle(this.#alphaHandle, alphaT, 'alpha')
     }
 
     this.#refreshAlphaSlider()

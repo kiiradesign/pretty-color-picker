@@ -62,6 +62,18 @@ export function oklchToRgb(color: OklchColor): { r: number; g: number; b: number
   }
 }
 
+/** Full-saturation HSV color at hue slider position t ∈ [0, 1]. */
+export function rgbAtHueSlider(t: number): { r: number; g: number; b: number } {
+  const hue = Math.max(0, Math.min(1, t)) * 360
+  const rgb = toRgb({ mode: 'hsv', h: hue, s: 1, v: 1, alpha: 1 }) as Rgb | undefined
+  if (!rgb) return { r: 0, g: 0, b: 0 }
+  return {
+    r: Math.round((rgb.r ?? 0) * 255),
+    g: Math.round((rgb.g ?? 0) * 255),
+    b: Math.round((rgb.b ?? 0) * 255),
+  }
+}
+
 export function oklchToAlphaGradient(color: OklchColor): string {
   const { r, g, b } = oklchToRgb(color)
   return `linear-gradient(to right, rgba(${r}, ${g}, ${b}, 0), rgb(${r}, ${g}, ${b}))`
