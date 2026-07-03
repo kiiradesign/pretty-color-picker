@@ -1,18 +1,35 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <style>
-    .swatch {
-      fill-opacity: 0.5;
-    }
-    @media (prefers-color-scheme: dark) {
-      .swatch {
-        fill: #fff4ed;
-      }
-    }
-    @media (prefers-color-scheme: light) {
-      .swatch {
+  <defs>
+    <clipPath id="swatch-clip">
+      <rect width="32" height="32" rx="5" />
+    </clipPath>
+    <!-- Standard #fff / #ccc checker — matches the picker -->
+    <pattern id="checker" x="16" width="6" height="6" patternUnits="userSpaceOnUse">
+      <rect width="6" height="6" fill="#ffffff" />
+      <rect width="3" height="3" fill="#cccccc" />
+      <rect x="3" y="3" width="3" height="3" fill="#cccccc" />
+    </pattern>
+    <style>
+      .swatch-solid,
+      .swatch-alpha {
         fill: #0c1615;
       }
-    }
-  </style>
-  <rect class="swatch" width="32" height="32" rx="6" />
+      .swatch-alpha {
+        fill-opacity: 0.5;
+      }
+      @media (prefers-color-scheme: dark) {
+        .swatch-solid,
+        .swatch-alpha {
+          fill: #fff4ed;
+        }
+      }
+    </style>
+  </defs>
+  <g clip-path="url(#swatch-clip)">
+    <!-- Left: solid -->
+    <rect class="swatch-solid" width="16" height="32" />
+    <!-- Right: checker + color at 50% (same split as the picker swatch) -->
+    <rect x="16" width="16" height="32" fill="url(#checker)" />
+    <rect class="swatch-alpha" x="16" width="16" height="32" />
+  </g>
 </svg>
