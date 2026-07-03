@@ -10,6 +10,8 @@ export type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'oklch'
 
 export type PickerTheme = 'dark' | 'light' | 'system'
 
+export type PickerHeaderAction = 'close' | 'theme'
+
 export type PickerPlaneMode = 'oklch' | 'hsl' | 'rgb'
 
 export interface FormatField {
@@ -26,6 +28,10 @@ export interface ColorChangeDetail {
   color: OklchColor
   css: string
   hex: string
+}
+
+export interface ThemeChangeDetail {
+  theme: 'dark' | 'light'
 }
 
 export const DEFAULT_COLOR: OklchColor = {

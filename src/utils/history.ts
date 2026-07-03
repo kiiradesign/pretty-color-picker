@@ -1,6 +1,10 @@
 import { HISTORY_KEY, HISTORY_LIMIT, type OklchColor } from '../types'
 import { oklchToHex } from '../color/conversions'
 
+export function colorsEqual(a: OklchColor, b: OklchColor): boolean {
+  return oklchToHex(a) === oklchToHex(b) && a.alpha === b.alpha
+}
+
 export function loadHistory(): OklchColor[] {
   try {
     const raw = localStorage.getItem(HISTORY_KEY)
@@ -13,8 +17,7 @@ export function loadHistory(): OklchColor[] {
 }
 
 export function saveToHistory(color: OklchColor, history: OklchColor[]): OklchColor[] {
-  const hex = oklchToHex(color)
-  const filtered = history.filter((item) => oklchToHex(item) !== hex || item.alpha !== color.alpha)
+  const filtered = history.filter((item) => !colorsEqual(item, color))
   const next = [color, ...filtered].slice(0, HISTORY_LIMIT)
   try {
     localStorage.setItem(HISTORY_KEY, JSON.stringify(next))

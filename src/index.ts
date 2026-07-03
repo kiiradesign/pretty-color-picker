@@ -4,8 +4,10 @@ export type {
   ColorFormat,
   FormatField,
   OklchColor,
+  PickerHeaderAction,
   PickerPlaneMode,
   PickerTheme,
+  ThemeChangeDetail,
 } from './types'
 export { DEFAULT_COLOR } from './types'
 export {

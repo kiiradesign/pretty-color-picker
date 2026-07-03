@@ -9,7 +9,7 @@ A beautiful, consistent, and perceptually accurate color picker for the modern w
 - **Multiple color formats** — Easy switching between Hex, RGB, HSL, and OKLCH
 - **Intuitive controls** — Hue slider, opacity/saturation slider, and large interactive color area
 - **Last Used swatches** — Quick access to recently picked colors
-- **Fully customizable** — Style everything with CSS variables to match your design system
+- **Fully customizable** — Style everything with CSS variables to match your design system and light/dark theme
 - **Consistent & cross-browser** — Works reliably on desktop and mobile across Chrome, Safari, and Firefox
 - **Lightweight and accessible** — Built with performance and keyboard/touch support in mind
 

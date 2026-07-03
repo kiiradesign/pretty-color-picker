@@ -12,6 +12,7 @@ export function bindPointerDrag(
   element: HTMLElement,
   onMove: (x: number, y: number) => void,
   onEnd?: () => void,
+  onStart?: () => void,
 ): () => void {
   let active = false
 
@@ -41,6 +42,7 @@ export function bindPointerDrag(
     if (event.button !== 0) return
     active = true
     element.setPointerCapture(event.pointerId)
+    onStart?.()
     const { x, y } = pointerPosition(event, element)
     onMove(x, y)
     window.addEventListener('pointermove', handleMove)

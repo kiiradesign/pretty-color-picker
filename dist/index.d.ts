@@ -40,6 +40,8 @@ export declare function oklchToRgbString(color: OklchColor): string;
 
 export declare function parseFormatFields(format: ColorFormat, fields: Record<string, string>, current: OklchColor): OklchColor | null;
 
+export declare type PickerHeaderAction = 'close' | 'theme';
+
 export declare type PickerPlaneMode = 'oklch' | 'hsl' | 'rgb';
 
 export declare type PickerTheme = 'dark' | 'light' | 'system';
@@ -57,6 +59,12 @@ export declare class PrettyColorPicker extends HTMLElement {
     set color(c: OklchColor);
     get theme(): PickerTheme;
     set theme(value: PickerTheme);
+    get headerAction(): PickerHeaderAction;
+    set headerAction(value: PickerHeaderAction);
+}
+
+export declare interface ThemeChangeDetail {
+    theme: 'dark' | 'light';
 }
 
 export { }

@@ -14,15 +14,40 @@ import {
   parseFormatFields,
   planePositionFromColor,
 } from './color/conversions'
-import { loadHistory, saveToHistory } from './utils/history'
+import { colorsEqual, loadHistory, saveToHistory } from './utils/history'
 import { bindPointerDrag } from './utils/pointer'
 import {
   DEFAULT_COLOR,
   type ColorChangeDetail,
   type ColorFormat,
   type OklchColor,
+  type PickerHeaderAction,
   type PickerTheme,
+  type ThemeChangeDetail,
 } from './types'
+
+const SUN_ICON = `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+  <circle cx="8" cy="8" r="3.25" stroke="currentColor" stroke-width="1.5" />
+  <path
+    d="M8 2.25v1.75M8 12v1.75M2.25 8h1.75M12 8h1.75M4.1 4.1l1.24 1.24M10.66 10.66l1.24 1.24M4.1 11.9l1.24-1.24M10.66 5.34l1.24-1.24"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+  />
+</svg>`
+
+const MOON_ICON = `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+  <path
+    d="M12.38 10.25a4.75 4.75 0 1 1-3.63-8.13 5.5 5.5 0 1 0 3.63 8.13z"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linejoin="round"
+  />
+</svg>`
+
+type RefreshOptions = {
+  refreshFields?: boolean
+}
 
 const FORMATS: ColorFormat[] = ['hex', 'rgb', 'hsl', 'oklch']
 const FORMAT_LABELS: Record<ColorFormat, string> = {
@@ -34,13 +59,14 @@ const FORMAT_LABELS: Record<ColorFormat, string> = {
 
 export class PrettyColorPicker extends HTMLElement {
   static get observedAttributes(): string[] {
-    return ['value', 'theme']
+    return ['value', 'theme', 'header-action']
   }
 
   #shadow: ShadowRoot
   #color: OklchColor = { ...DEFAULT_COLOR }
   #format: ColorFormat = 'hsl'
   #history: OklchColor[] = loadHistory()
+  #editStartColor: OklchColor | null = null
   #cleanups: Array<() => void> = []
 
   #planeCanvas!: HTMLCanvasElement
@@ -56,6 +82,7 @@ export class PrettyColorPicker extends HTMLElement {
   #swatchFill!: HTMLElement
   #alphaInput!: HTMLInputElement
   #historyContainer!: HTMLElement
+  #themeToggleBtn: HTMLButtonElement | null = null
 
   constructor() {
     super()
@@ -75,11 +102,17 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
-    if (!this.isConnected || name !== 'value' || value == null) return
-    const parsed = oklchFromCss(value)
-    if (parsed) {
-      this.#color = parsed
-      this.#refreshAll(false)
+    if (!this.isConnected) return
+    if (name === 'value' && value != null) {
+      const parsed = oklchFromCss(value)
+      if (parsed) {
+        this.#color = parsed
+        this.#refreshAll(false)
+      }
+      return
+    }
+    if (name === 'theme') {
+      this.#updateThemeToggleButton()
     }
   }
 
@@ -114,6 +147,14 @@ export class PrettyColorPicker extends HTMLElement {
     this.setAttribute('theme', value)
   }
 
+  get headerAction(): PickerHeaderAction {
+    return this.getAttribute('header-action') === 'theme' ? 'theme' : 'close'
+  }
+
+  set headerAction(value: PickerHeaderAction) {
+    this.setAttribute('header-action', value)
+  }
+
   #applyValueAttribute(): void {
     const attr = this.getAttribute('value')
     if (attr) {
@@ -123,13 +164,10 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #render(): void {
-    this.#shadow.innerHTML = `
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" />
-      <style>${styles}</style>
-      <div class="pcp" part="container">
-        <header class="pcp-header">
-          <h2 class="pcp-title">Pretty Color Picker</h2>
-          <button type="button" class="pcp-close" aria-label="Close">
+    const headerButton =
+      this.headerAction === 'theme'
+        ? `<button type="button" class="pcp-header-btn pcp-theme-toggle" aria-label="Switch to light mode">${SUN_ICON}</button>`
+        : `<button type="button" class="pcp-header-btn pcp-close" aria-label="Close">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path
                 d="M4.25 4.25L11.75 11.75M11.75 4.25L4.25 11.75"
@@ -138,10 +176,18 @@ export class PrettyColorPicker extends HTMLElement {
                 stroke-linecap="round"
               />
             </svg>
-          </button>
+          </button>`
+
+    this.#shadow.innerHTML = `
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" />
+      <style>${styles}</style>
+      <div class="pcp" part="container">
+        <header class="pcp-header">
+          <h2 class="pcp-title">Pretty Color Picker</h2>
+          ${headerButton}
         </header>
         <div class="pcp-plane-wrap pcp-clip">
-          <canvas class="pcp-plane" width="320" height="240" aria-label="Color plane"></canvas>
+          <canvas class="pcp-plane" width="256" height="192" aria-label="Color plane"></canvas>
           <div class="pcp-cursor" aria-hidden="true"></div>
         </div>
         <div class="pcp-slider-wrapper">
@@ -188,19 +234,24 @@ export class PrettyColorPicker extends HTMLElement {
     this.#swatchFill = this.#shadow.querySelector('.pcp-swatch-fill')!
     this.#alphaInput = this.#shadow.querySelector('.pcp-alpha-input')!
     this.#historyContainer = this.#shadow.querySelector('.pcp-history')!
+    this.#themeToggleBtn = this.#shadow.querySelector('.pcp-theme-toggle')
+    this.#updateThemeToggleButton()
   }
 
   #bind(): void {
-    const closeBtn = this.#shadow.querySelector('.pcp-close')!
-    closeBtn.addEventListener('click', () => {
+    const closeBtn = this.#shadow.querySelector('.pcp-close')
+    closeBtn?.addEventListener('click', () => {
       this.dispatchEvent(new CustomEvent('close', { bubbles: true, composed: true }))
     })
+
+    this.#themeToggleBtn?.addEventListener('click', () => this.#toggleTheme())
 
     this.#cleanups.push(
       bindPointerDrag(
         this.#planeWrap,
         (x, y) => this.#onPlaneMove(x, y),
         () => this.#commitHistory(),
+        () => this.#captureEditStart(),
       ),
     )
 
@@ -209,6 +260,7 @@ export class PrettyColorPicker extends HTMLElement {
         this.#hueRow,
         (x) => this.#onHueMove(x),
         () => this.#commitHistory(),
+        () => this.#captureEditStart(),
       ),
     )
 
@@ -217,6 +269,7 @@ export class PrettyColorPicker extends HTMLElement {
         this.#alphaRow,
         (x) => this.#onAlphaMove(x),
         () => this.#commitHistory(),
+        () => this.#captureEditStart(),
       ),
     )
 
@@ -236,10 +289,45 @@ export class PrettyColorPicker extends HTMLElement {
       })
     })
 
+    this.#alphaInput.addEventListener('focus', () => this.#captureEditStart())
     this.#alphaInput.addEventListener('change', () => this.#onAlphaInput())
     this.#alphaInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') this.#onAlphaInput()
     })
+  }
+
+  #captureEditStart(): void {
+    this.#editStartColor = { ...this.#color }
+  }
+
+  #resolvedTheme(): 'dark' | 'light' {
+    if (this.theme === 'light') return 'light'
+    if (this.theme === 'dark') return 'dark'
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  }
+
+  #toggleTheme(): void {
+    const next: 'dark' | 'light' = this.#resolvedTheme() === 'light' ? 'dark' : 'light'
+    this.theme = next
+    this.#updateThemeToggleButton()
+    const detail: ThemeChangeDetail = { theme: next }
+    this.dispatchEvent(
+      new CustomEvent<ThemeChangeDetail>('themechange', {
+        detail,
+        bubbles: true,
+        composed: true,
+      }),
+    )
+  }
+
+  #updateThemeToggleButton(): void {
+    if (!this.#themeToggleBtn) return
+    const isLight = this.#resolvedTheme() === 'light'
+    this.#themeToggleBtn.innerHTML = isLight ? MOON_ICON : SUN_ICON
+    this.#themeToggleBtn.setAttribute(
+      'aria-label',
+      isLight ? 'Switch to dark mode' : 'Switch to light mode',
+    )
   }
 
   #bindSliderHover(slider: HTMLElement): () => void {
@@ -265,25 +353,23 @@ export class PrettyColorPicker extends HTMLElement {
 
   #onPlaneMove(x: number, y: number): void {
     this.#planeCursor.dataset.dragging = 'true'
-    const hue = this.#readHueFromSlider()
-    this.#setColor(colorFromPlanePosition(x, y, hue, this.#color.alpha), false)
+    const hue = this.#planeHue()
+    this.#setColor(colorFromPlanePosition(x, y, hue, this.#color.alpha), true)
     this.#updateCursor(x, y)
   }
 
   #onHueMove(x: number): void {
     this.#hueRow.dataset.active = 'true'
     this.#hueHandle.dataset.dragging = 'true'
-    const hue = x * 360
-    this.#setColor(colorWithHue(this.#color, hue), false)
     this.#setSliderHandlePosition(this.#hueHandle, x)
-    this.#refreshPlane()
-    this.#refreshCursor()
+    const hue = x * 360
+    this.#setColor(colorWithHue(this.#color, hue), true)
   }
 
   #onAlphaMove(x: number): void {
     this.#alphaRow.dataset.active = 'true'
     this.#alphaHandle.dataset.dragging = 'true'
-    this.#setColor(normalizeOklch({ ...this.#color, alpha: x }), false)
+    this.#setColor(normalizeOklch({ ...this.#color, alpha: x }), true)
     this.#setSliderHandlePosition(this.#alphaHandle, x)
   }
 
@@ -301,7 +387,7 @@ export class PrettyColorPicker extends HTMLElement {
       this.#refreshAlphaField()
       return
     }
-    this.#setColor(normalizeOklch({ ...this.#color, alpha: n / 100 }))
+    this.#setColor(normalizeOklch({ ...this.#color, alpha: n / 100 }), true)
     this.#commitHistory()
   }
 
@@ -312,14 +398,14 @@ export class PrettyColorPicker extends HTMLElement {
     })
     const parsed = parseFormatFields(this.#format, fields, this.#color)
     if (parsed) {
-      this.#setColor(parsed)
+      this.#setColor(parsed, true)
       this.#commitHistory()
     }
   }
 
-  #setColor(color: OklchColor, emit = true): void {
+  #setColor(color: OklchColor, emit = true, options?: RefreshOptions): void {
     this.#color = normalizeOklch(color)
-    this.#refreshVisuals(emit)
+    this.#refreshVisuals(emit, options)
   }
 
   #refreshAll(emit = true): void {
@@ -329,17 +415,26 @@ export class PrettyColorPicker extends HTMLElement {
     this.#refreshHistory()
   }
 
-  #refreshVisuals(emit: boolean): void {
-    this.#refreshFields()
+  #refreshVisuals(emit: boolean, options?: RefreshOptions): void {
+    if (options?.refreshFields !== false) {
+      this.#refreshFields()
+    }
     this.#refreshSwatch()
     this.#refreshSliders()
     this.#refreshCursor()
+    this.#refreshPlane()
     if (emit) this.#emitChange()
   }
 
+  #planeHue(): number {
+    if (this.#hueHandle.hasAttribute('data-dragging')) {
+      return this.#readHueFromSlider()
+    }
+    return colorHueAngle(this.#color)
+  }
+
   #refreshPlane(): void {
-    const hue = this.#readHueFromSlider()
-    renderPickerPlane(this.#planeCanvas, hue)
+    renderPickerPlane(this.#planeCanvas, this.#planeHue())
   }
 
   #refreshCursor(): void {
@@ -385,10 +480,11 @@ export class PrettyColorPicker extends HTMLElement {
 
   #refreshFields(): void {
     const fields = formatFieldsFor(this.#color, this.#format)
+    this.#fieldsContainer.dataset.format = this.#format
     this.#fieldsContainer.innerHTML = fields
       .map(
         (f) => `
-        <div class="pcp-field">
+        <div class="pcp-field pcp-field-${f.key}">
           <span class="pcp-field-label">${f.label}</span>
           <input
             class="pcp-field-input"
@@ -405,6 +501,7 @@ export class PrettyColorPicker extends HTMLElement {
     this.#fieldsContainer.querySelectorAll('.pcp-field-input').forEach((input) => {
       const el = input as HTMLInputElement
       const key = el.dataset.key!
+      el.addEventListener('focus', () => this.#captureEditStart())
       el.addEventListener('change', () => this.#onFieldInput(key, el.value))
       el.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') this.#onFieldInput(key, el.value)
@@ -454,7 +551,7 @@ export class PrettyColorPicker extends HTMLElement {
       btn.addEventListener('click', () => {
         const index = Number((btn as HTMLElement).dataset.index)
         const item = this.#history[index]
-        if (item) this.#setColor({ ...item })
+        if (item) this.#setColor({ ...item }, true, { refreshFields: true })
       })
     })
   }
@@ -465,7 +562,11 @@ export class PrettyColorPicker extends HTMLElement {
     delete this.#alphaHandle.dataset.dragging
     delete this.#hueRow.dataset.active
     delete this.#alphaRow.dataset.active
-    this.#history = saveToHistory(this.#color, this.#history)
+    const previous = this.#editStartColor
+    this.#editStartColor = null
+    if (previous && !colorsEqual(previous, this.#color)) {
+      this.#history = saveToHistory(previous, this.#history)
+    }
     this.#refreshHistory()
   }
 
