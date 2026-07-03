@@ -168,7 +168,6 @@ export class PrettyColorPicker extends HTMLElement {
           </button>`
 
     this.#shadow.innerHTML = `
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" />
       <style>${styles}</style>
       <div class="pcp" part="container">
         <header class="pcp-header">

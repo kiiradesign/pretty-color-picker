@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap');
+
 :host {
   /* Shared structure — Geist + DialKit (compact embed size) */
   --pcp-width: 260px;
@@ -153,11 +155,9 @@
   box-sizing: border-box;
 }
 
-/* Corner-safe clipping — use on every rounded surface */
+/* Corner-safe clipping — avoid translateZ/isolation (Safari compositor ghosts) */
 .pcp-clip {
   overflow: hidden;
-  isolation: isolate;
-  transform: translateZ(0);
 }
 
 .pcp-swatch-fill {
@@ -406,6 +406,8 @@
   position: absolute;
   top: 2px;
   bottom: 2px;
+  left: 0;
+  width: 0;
   background: var(--pcp-tab-pill);
   border-radius: 5px;
   z-index: 0;
@@ -448,6 +450,7 @@
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
+  overflow: hidden;
   grid-template-columns:
     var(--pcp-input-panel-height)
     var(--pcp-swatch-code-gap)
@@ -470,14 +473,19 @@
   height: var(--pcp-input-panel-height);
   border-radius: var(--pcp-radius-sm);
   position: relative;
+  overflow: hidden;
 }
 
 .pcp-fields {
-  display: contents;
+  grid-column: 3 / 6;
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 3px;
 }
 
 .pcp-fields[data-format='hex'] .pcp-field-hex {
-  grid-column: 3 / 6;
+  grid-column: 1 / -1;
   justify-self: center;
   width: fit-content;
   align-items: center;
@@ -495,39 +503,39 @@
 }
 
 .pcp-fields[data-format='rgb'] .pcp-field-r {
-  grid-column: 3;
+  grid-column: 1;
 }
 
 .pcp-fields[data-format='rgb'] .pcp-field-g {
-  grid-column: 4;
+  grid-column: 2;
 }
 
 .pcp-fields[data-format='rgb'] .pcp-field-b {
-  grid-column: 5;
+  grid-column: 3;
 }
 
 .pcp-fields[data-format='hsl'] .pcp-field-h {
-  grid-column: 3;
+  grid-column: 1;
 }
 
 .pcp-fields[data-format='hsl'] .pcp-field-s {
-  grid-column: 4;
+  grid-column: 2;
 }
 
 .pcp-fields[data-format='hsl'] .pcp-field-l {
-  grid-column: 5;
-}
-
-.pcp-fields[data-format='oklch'] .pcp-field-l {
   grid-column: 3;
 }
 
+.pcp-fields[data-format='oklch'] .pcp-field-l {
+  grid-column: 1;
+}
+
 .pcp-fields[data-format='oklch'] .pcp-field-c {
-  grid-column: 4;
+  grid-column: 2;
 }
 
 .pcp-fields[data-format='oklch'] .pcp-field-h {
-  grid-column: 5;
+  grid-column: 3;
 }
 
 .pcp-alpha-field {
