@@ -1,8 +1,9 @@
-import { clampChroma, converter, formatHex, formatHsl, oklch, parse, type Oklch, type Rgb } from 'culori'
+import { clampChroma, converter, formatHex, oklch, parse, type Oklch, type Rgb } from 'culori'
 import type { ColorFormat, FormatField, OklchColor } from '../types'
 
 const toRgb = converter('rgb')
 const toHsv = converter('hsv')
+const toHsl = converter('hsl')
 
 export function normalizeOklch(color: Partial<OklchColor>): OklchColor {
   const l = clamp01(color.l ?? 0)
@@ -87,7 +88,7 @@ export function colorWithHue(color: OklchColor, hue: number): OklchColor {
 export function formatFieldsFor(color: OklchColor, format: ColorFormat): FormatField[] {
   switch (format) {
     case 'hex':
-      return [{ key: 'hex', label: 'Hex Code', value: oklchToHex(color).replace('#', '').toUpperCase() }]
+      return [{ key: 'hex', label: 'HEX CODE', value: oklchToHex(color).replace('#', '').toUpperCase() }]
     case 'rgb': {
       const rgb = toRgb({ mode: 'oklch', ...color }) as Rgb
       return [
@@ -97,12 +98,25 @@ export function formatFieldsFor(color: OklchColor, format: ColorFormat): FormatF
       ]
     }
     case 'hsl': {
-      const hslStr = formatHsl(toRgb({ mode: 'oklch', ...color }))
-      const match = hslStr?.match(/hsl\(([\d.]+),\s*([\d.]+)%,\s*([\d.]+)%\)/)
+      const hsl = toHsl({ mode: 'oklch', ...color })
       return [
-        { key: 'h', label: 'H', value: String(Math.round(Number(match?.[1] ?? 0))), min: 0, max: 360 },
-        { key: 's', label: 'S', value: String(Math.round(Number(match?.[2] ?? 0))), min: 0, max: 100, suffix: '%' },
-        { key: 'l', label: 'L', value: String(Math.round(Number(match?.[3] ?? 0))), min: 0, max: 100, suffix: '%' },
+        { key: 'h', label: 'H', value: String(Math.round(hsl?.h ?? 0)), min: 0, max: 360 },
+        {
+          key: 's',
+          label: 'S',
+          value: String(Math.round((hsl?.s ?? 0) * 100)),
+          min: 0,
+          max: 100,
+          suffix: '%',
+        },
+        {
+          key: 'l',
+          label: 'L',
+          value: String(Math.round((hsl?.l ?? 0) * 100)),
+          min: 0,
+          max: 100,
+          suffix: '%',
+        },
       ]
     }
     case 'oklch':
@@ -135,9 +149,9 @@ export function parseFormatFields(
       return parsed ? withAlpha(parsed, current.alpha) : null
     }
     case 'hsl': {
-      const h = Number(fields.h)
-      const s = Number(fields.s)
-      const l = Number(fields.l)
+      const h = parseNumberField(fields.h)
+      const s = parseNumberField(fields.s)
+      const l = parseNumberField(fields.l)
       if ([h, s, l].some((v) => Number.isNaN(v))) return null
       const parsed = oklchFromCss(`hsl(${h}, ${clamp100(s)}%, ${clamp100(l)}%)`)
       return parsed ? withAlpha(parsed, current.alpha) : null
@@ -178,6 +192,10 @@ function clamp255(v: number): number {
 
 function clamp100(v: number): number {
   return Math.min(100, Math.max(0, v))
+}
+
+function parseNumberField(value: string): number {
+  return Number(value.replace(/%/g, '').trim())
 }
 
 function normalizeHue(h: number): number {
