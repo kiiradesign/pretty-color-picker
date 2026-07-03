@@ -25,7 +25,7 @@ import {
 
 const FORMATS: ColorFormat[] = ['hex', 'rgb', 'hsl', 'oklch']
 const FORMAT_LABELS: Record<ColorFormat, string> = {
-  hex: 'Hex',
+  hex: 'HEX',
   rgb: 'RGB',
   hsl: 'HSL',
   oklch: 'OKLCH',
@@ -41,7 +41,6 @@ export class PrettyColorPicker extends HTMLElement {
   #format: ColorFormat = 'hsl'
   #history: OklchColor[] = loadHistory()
   #cleanups: Array<() => void> = []
-  #planeSwitchTimer: ReturnType<typeof setTimeout> | null = null
 
   #planeCanvas!: HTMLCanvasElement
   #planeWrap!: HTMLElement
@@ -53,8 +52,7 @@ export class PrettyColorPicker extends HTMLElement {
   #alphaHandle!: HTMLElement
   #tabsPill!: HTMLElement
   #fieldsContainer!: HTMLElement
-  #swatchSolid!: HTMLElement
-  #swatchAlphaColor!: HTMLElement
+  #swatchFill!: HTMLElement
   #alphaInput!: HTMLInputElement
   #historyContainer!: HTMLElement
 
@@ -73,7 +71,6 @@ export class PrettyColorPicker extends HTMLElement {
   disconnectedCallback(): void {
     this.#cleanups.forEach((fn) => fn())
     this.#cleanups = []
-    if (this.#planeSwitchTimer) clearTimeout(this.#planeSwitchTimer)
   }
 
   attributeChangedCallback(name: string, _old: string | null, value: string | null): void {
@@ -123,24 +120,19 @@ export class PrettyColorPicker extends HTMLElement {
           <h2 class="pcp-title">Color Picker</h2>
           <button type="button" class="pcp-close" aria-label="Close">×</button>
         </header>
-        <div class="pcp-plane-wrap">
+        <div class="pcp-plane-wrap pcp-clip">
           <canvas class="pcp-plane" width="320" height="240" aria-label="Color plane"></canvas>
           <div class="pcp-cursor" aria-hidden="true"></div>
         </div>
         <div class="pcp-slider-wrapper">
-          <div class="pcp-slider pcp-hue-row" aria-label="Hue">
-            <div class="pcp-slider-track">
-              <div class="pcp-slider-hue"></div>
-            </div>
+          <div class="pcp-slider pcp-clip pcp-hue-row" aria-label="Hue">
+            <div class="pcp-slider-fill pcp-slider-fill-hue"></div>
             <div class="pcp-slider-handle"></div>
           </div>
         </div>
         <div class="pcp-slider-wrapper">
-          <div class="pcp-slider pcp-alpha-row" aria-label="Opacity">
-            <div class="pcp-slider-track">
-              <div class="pcp-slider-checker"></div>
-              <div class="pcp-slider-alpha"></div>
-            </div>
+          <div class="pcp-slider pcp-clip pcp-alpha-row" aria-label="Opacity">
+            <div class="pcp-slider-fill pcp-slider-fill-alpha"></div>
             <div class="pcp-slider-handle"></div>
           </div>
         </div>
@@ -149,12 +141,8 @@ export class PrettyColorPicker extends HTMLElement {
           ${FORMATS.map((f) => `<button type="button" class="pcp-tab" role="tab" data-format="${f}">${FORMAT_LABELS[f]}</button>`).join('')}
         </div>
         <div class="pcp-inputs">
-          <div class="pcp-swatch" aria-hidden="true">
-            <div class="pcp-swatch-solid"></div>
-            <div class="pcp-swatch-alpha">
-              <div class="pcp-swatch-checker"></div>
-              <div class="pcp-swatch-alpha-color"></div>
-            </div>
+          <div class="pcp-swatch pcp-clip" aria-hidden="true">
+            <span class="pcp-swatch-fill"></span>
           </div>
           <div class="pcp-fields"></div>
           <div class="pcp-field pcp-alpha-field">
@@ -173,12 +161,11 @@ export class PrettyColorPicker extends HTMLElement {
     this.#hueRow = this.#shadow.querySelector('.pcp-hue-row')!
     this.#hueHandle = this.#hueRow.querySelector('.pcp-slider-handle')!
     this.#alphaRow = this.#shadow.querySelector('.pcp-alpha-row')!
-    this.#alphaFill = this.#shadow.querySelector('.pcp-slider-alpha')!
+    this.#alphaFill = this.#shadow.querySelector('.pcp-slider-fill-alpha')!
     this.#alphaHandle = this.#alphaRow.querySelector('.pcp-slider-handle')!
     this.#tabsPill = this.#shadow.querySelector('.pcp-tabs-pill')!
     this.#fieldsContainer = this.#shadow.querySelector('.pcp-fields')!
-    this.#swatchSolid = this.#shadow.querySelector('.pcp-swatch-solid')!
-    this.#swatchAlphaColor = this.#shadow.querySelector('.pcp-swatch-alpha-color')!
+    this.#swatchFill = this.#shadow.querySelector('.pcp-swatch-fill')!
     this.#alphaInput = this.#shadow.querySelector('.pcp-alpha-input')!
     this.#historyContainer = this.#shadow.querySelector('.pcp-history')!
   }
@@ -213,12 +200,15 @@ export class PrettyColorPicker extends HTMLElement {
       ),
     )
 
+    this.#cleanups.push(this.#bindSliderHover(this.#hueRow))
+    this.#cleanups.push(this.#bindSliderHover(this.#alphaRow))
+
     this.#shadow.querySelectorAll('.pcp-tab').forEach((tab) => {
       tab.addEventListener('click', () => {
         const format = (tab as HTMLElement).dataset.format as ColorFormat
         if (format && format !== this.#format) {
           this.#format = format
-          this.#refreshPlane(true)
+          this.#refreshPlane()
           this.#refreshTabs()
           this.#refreshFields()
           this.#refreshCursor()
@@ -230,6 +220,27 @@ export class PrettyColorPicker extends HTMLElement {
     this.#alphaInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') this.#onAlphaInput()
     })
+  }
+
+  #bindSliderHover(slider: HTMLElement): () => void {
+    const onEnter = () => {
+      slider.dataset.active = 'true'
+    }
+    const onLeave = () => {
+      const handle = slider.querySelector('.pcp-slider-handle')
+      if (!handle?.hasAttribute('data-dragging')) delete slider.dataset.active
+    }
+    slider.addEventListener('pointerenter', onEnter)
+    slider.addEventListener('pointerleave', onLeave)
+    return () => {
+      slider.removeEventListener('pointerenter', onEnter)
+      slider.removeEventListener('pointerleave', onLeave)
+    }
+  }
+
+  #setSliderHandlePosition(handle: HTMLElement, t: number): void {
+    const pct = Math.max(0, Math.min(1, t)) * 100
+    handle.style.left = `max(1px, calc(${pct}% - 1.5px))`
   }
 
   #onPlaneMove(x: number, y: number): void {
@@ -244,8 +255,8 @@ export class PrettyColorPicker extends HTMLElement {
     this.#hueHandle.dataset.dragging = 'true'
     const hue = x * 360
     this.#setColor(colorWithHue(this.#color, hue), false)
-    this.#hueHandle.style.left = `${x * 100}%`
-    this.#refreshPlane(false)
+    this.#setSliderHandlePosition(this.#hueHandle, x)
+    this.#refreshPlane()
     this.#refreshCursor()
   }
 
@@ -253,12 +264,13 @@ export class PrettyColorPicker extends HTMLElement {
     this.#alphaRow.dataset.active = 'true'
     this.#alphaHandle.dataset.dragging = 'true'
     this.#setColor(normalizeOklch({ ...this.#color, alpha: x }), false)
-    this.#alphaHandle.style.left = `${x * 100}%`
+    this.#setSliderHandlePosition(this.#alphaHandle, x)
   }
 
   #readHueFromSlider(): number {
     const left = this.#hueHandle.style.left
-    if (left.endsWith('%')) return (parseFloat(left) / 100) * 360
+    const match = left.match(/calc\(([\d.]+)%/)
+    if (match) return (parseFloat(match[1]) / 100) * 360
     return colorHueAngle(this.#color)
   }
 
@@ -291,7 +303,7 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #refreshAll(emit = true): void {
-    this.#refreshPlane(false)
+    this.#refreshPlane()
     this.#refreshTabs()
     this.#refreshVisuals(emit)
     this.#refreshHistory()
@@ -305,15 +317,7 @@ export class PrettyColorPicker extends HTMLElement {
     if (emit) this.#emitChange()
   }
 
-  #refreshPlane(switching: boolean): void {
-    if (switching) {
-      this.#planeCanvas.dataset.switching = 'true'
-      if (this.#planeSwitchTimer) clearTimeout(this.#planeSwitchTimer)
-      this.#planeSwitchTimer = setTimeout(() => {
-        delete this.#planeCanvas.dataset.switching
-      }, 200)
-    }
-
+  #refreshPlane(): void {
     const hue = this.#readHueFromSlider()
     renderPickerPlane(this.#planeCanvas, hue)
   }
@@ -321,7 +325,6 @@ export class PrettyColorPicker extends HTMLElement {
   #refreshCursor(): void {
     const { x, y } = planePositionFromColor(this.#color)
     this.#updateCursor(x, y)
-    delete this.#planeCursor.dataset.dragging
   }
 
   #updateCursor(x: number, y: number): void {
@@ -331,25 +334,29 @@ export class PrettyColorPicker extends HTMLElement {
 
   #refreshSliders(): void {
     const hue = colorHueAngle(this.#color)
-    this.#hueHandle.style.left = `${(hue / 360) * 100}%`
-    delete this.#hueHandle.dataset.dragging
-    delete this.#hueRow.dataset.active
+    if (!this.#hueHandle.hasAttribute('data-dragging')) {
+      this.#setSliderHandlePosition(this.#hueHandle, hue / 360)
+    }
 
-    this.#alphaHandle.style.left = `${this.#color.alpha * 100}%`
-    delete this.#alphaHandle.dataset.dragging
-    delete this.#alphaRow.dataset.active
+    if (!this.#alphaHandle.hasAttribute('data-dragging')) {
+      this.#setSliderHandlePosition(this.#alphaHandle, this.#color.alpha)
+    }
 
     this.#refreshAlphaSlider()
   }
 
   #refreshAlphaSlider(): void {
-    this.#alphaFill.style.background = oklchToAlphaGradient(this.#color)
+    this.#alphaFill.style.setProperty('--pcp-alpha-gradient', oklchToAlphaGradient(this.#color))
+  }
+
+  #setSwatchFill(el: HTMLElement, color: OklchColor): void {
+    const { r, g, b } = oklchToRgb(color)
+    el.style.setProperty('--swatch-solid', `rgb(${r}, ${g}, ${b})`)
+    el.style.setProperty('--swatch-alpha', `rgba(${r}, ${g}, ${b}, ${color.alpha})`)
   }
 
   #refreshSwatch(): void {
-    const { r, g, b } = oklchToRgb(this.#color)
-    this.#swatchSolid.style.background = `rgb(${r}, ${g}, ${b})`
-    this.#swatchAlphaColor.style.background = `rgba(${r}, ${g}, ${b}, ${this.#color.alpha})`
+    this.#setSwatchFill(this.#swatchFill, this.#color)
   }
 
   #refreshAlphaField(): void {
@@ -409,19 +416,19 @@ export class PrettyColorPicker extends HTMLElement {
   #refreshHistory(): void {
     this.#historyContainer.innerHTML = this.#history
       .map((c, i) => {
-        const { r, g, b } = oklchToRgb(c)
-        const solid = `rgb(${r}, ${g}, ${b})`
-        const alpha = `rgba(${r}, ${g}, ${b}, ${c.alpha})`
         return `
-          <button type="button" class="pcp-history-swatch" data-index="${i}" aria-label="Color ${oklchToHex(c)}">
-            <span
-              class="pcp-history-swatch-fill"
-              style="--swatch-solid:${solid};--swatch-alpha:${alpha}"
-            ></span>
+          <button type="button" class="pcp-history-swatch pcp-clip" data-index="${i}" aria-label="Color ${oklchToHex(c)}">
+            <span class="pcp-swatch-fill" data-history-fill="${i}"></span>
           </button>
         `
       })
       .join('')
+
+    this.#historyContainer.querySelectorAll('[data-history-fill]').forEach((el) => {
+      const index = Number((el as HTMLElement).dataset.historyFill)
+      const item = this.#history[index]
+      if (item) this.#setSwatchFill(el as HTMLElement, item)
+    })
 
     this.#historyContainer.querySelectorAll('.pcp-history-swatch').forEach((btn) => {
       btn.addEventListener('click', () => {
