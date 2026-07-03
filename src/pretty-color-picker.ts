@@ -1,3 +1,4 @@
+import { MOON_ICON, SUN_ICON } from './icons'
 import styles from './styles/color-picker.css?inline'
 import { renderPickerPlane } from './color/canvas'
 import {
@@ -32,25 +33,6 @@ import {
   type PickerTheme,
   type ThemeChangeDetail,
 } from './types'
-
-const SUN_ICON = `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-  <circle cx="8" cy="8" r="3.25" stroke="currentColor" stroke-width="1.5" />
-  <path
-    d="M8 2.25v1.75M8 12v1.75M2.25 8h1.75M12 8h1.75M4.1 4.1l1.24 1.24M10.66 10.66l1.24 1.24M4.1 11.9l1.24-1.24M10.66 5.34l1.24-1.24"
-    stroke="currentColor"
-    stroke-width="1.5"
-    stroke-linecap="round"
-  />
-</svg>`
-
-const MOON_ICON = `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
-  <path
-    d="M12.38 10.25a4.75 4.75 0 1 1-3.63-8.13 5.5 5.5 0 1 0 3.63 8.13z"
-    stroke="currentColor"
-    stroke-width="1.5"
-    stroke-linejoin="round"
-  />
-</svg>`
 
 type RefreshOptions = {
   refreshFields?: boolean

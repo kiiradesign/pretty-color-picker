@@ -1,3 +1,5 @@
 node_modules/
+dist/
+demo-dist/
 .env
 .DS_Store

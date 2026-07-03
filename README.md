@@ -1,35 +1,43 @@
 # Pretty Color Picker
 
-A beautiful, consistent, and perceptually accurate color picker for the modern web.
+A perceptually accurate color picker for the modern web. OKLCH is the internal source of truth; Hex, RGB, HSL, and OKLCH are display formats.
+
+Native **Web Component** — works in any framework or plain HTML.
+
+**[Try the live demo →](https://colors.kiira.in)**
 
 ## Features
 
-- **Beautiful modern design** — Large, smooth gradient canvas with DialKit-inspired aesthetics
-- **Native OKLCH support** — Full perceptual color space with Display P3 wide-gamut colors
-- **Multiple color formats** — Easy switching between Hex, RGB, HSL, and OKLCH
-- **Intuitive controls** — Hue slider, opacity/saturation slider, and large interactive color area
-- **Last Used swatches** — Quick access to recently picked colors
-- **Fully customizable** — Style everything with CSS variables to match your design system and light/dark theme
-- **Consistent & cross-browser** — Works reliably on desktop and mobile across Chrome, Safari, and Firefox
-- **Lightweight and accessible** — Built with performance and keyboard/touch support in mind
+OKLCH color plane, hue and alpha sliders, format tabs (Hex / RGB / HSL / OKLCH), Last Used history, light / dark / system themes, Shadow DOM.
 
-## Why Pretty Color Picker?
-
-Tired of ugly native color pickers that look different in every browser?  
-Pretty Color Picker gives you a beautiful, consistent interface that feels like it belongs in high-end design tools.
-
-## Installation
+## Install
 
 ```bash
 npm install pretty-color-picker
 ```
 
-## Tech Stack
+## Usage
 
-- **Core**: TypeScript + Vanilla JavaScript (Web Components)
-- **Color Science**: Culori.js (for robust OKLCH, P3, and color conversions)
-- **Styling**: CSS Variables + Shadow DOM for strong encapsulation
-- **Framework Support**: Native Web Component (works with React, Vue, Svelte, Solid, Angular, and plain HTML)
-- **Build**: Vite + TypeScript
+```ts
+import 'pretty-color-picker'
+```
 
-Designed to be **lightweight**, framework-agnostic, and future-proof while maintaining excellent performance and accessibility.
+```html
+<pretty-color-picker value="#6366f1" theme="system" header-action="close"></pretty-color-picker>
+```
+
+| Attribute | Values | Description |
+|-----------|--------|-------------|
+| `value` | CSS color | Initial color |
+| `theme` | `light` \| `dark` \| `system` | Chrome theme |
+| `header-action` | `close` \| `theme` | Close button or theme toggle |
+
+**Events:** `change` (`detail.color`, `detail.css`, `detail.hex`) — on commit, not live typing. `close` when `header-action="close"`. `themechange` when `header-action="theme"`.
+
+**API:** `picker.value`, `picker.color` (OKLCH), `picker.theme`, `picker.headerAction`.
+
+TypeScript types exported from `pretty-color-picker`.
+
+## License
+
+MIT — see [LICENSE](LICENSE). Icons from [Phosphor](https://phosphoricons.com) (MIT).

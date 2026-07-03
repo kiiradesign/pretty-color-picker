@@ -17,9 +17,10 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --config vite.demo.config.ts",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "build:demo": "vite build --config vite.demo.config.ts",
+    "preview": "vite preview --config vite.demo.config.ts"
   },
   "keywords": [
     "color-picker",
