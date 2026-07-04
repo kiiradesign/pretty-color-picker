@@ -4,7 +4,7 @@ A perceptually accurate color picker for the modern web. Colors are stored inter
 
 Native **Web Component**. Works in any framework or plain HTML.
 
-Try the live demo here: [https://colors.kiira.in](https://colors.kiira.in)
+**[Live demo](https://colors.kiira.in)** · **[GitHub](https://github.com/kiiradesign/pretty-color-picker)**
 
 The design and interactions are inspired by [DialKit](https://joshpuckett.me/dialkit). I'm considering contributing this component upstream.
 
@@ -56,7 +56,7 @@ import 'pretty-color-picker'
 | `history`       | `false` to hide             | Last Used swatch grid (on by default; hidden until the first color is committed) |
 
 
-**Events:** `change` (`detail.color`, `detail.css`, `detail.hex`) fires while dragging sliders or scrubbing labels; field inputs commit on Enter/blur. Not fired on mount. `close` when the panel closes (`header-action="close"` or popover dismiss). `themechange` when `header-action="theme"`.
+**Events:** `change` (`detail.color`, `detail.css`, `detail.hex`) fires while dragging sliders or scrubbing labels; field inputs commit on Enter/blur. Not fired on mount. `close` when the panel closes (`header-action="close"` or popover dismiss). `themechange` when the user clicks the built-in theme toggle (`header-action="theme"`).
 
 **API:** `picker.value`, `picker.color` (OKLCH), `picker.theme`, `picker.headerAction`, `picker.mode`, `picker.anchor`, `picker.open`, `picker.show()`, `picker.hide()`, `picker.toggle()`, `picker.movable`, `picker.history`.
 

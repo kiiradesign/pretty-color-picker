@@ -418,7 +418,7 @@
   border: none;
   outline: none;
   border-radius: 999px;
-  background: var(--pcp-slider-handle);
+  background-color: transparent;
   pointer-events: none;
   transform: translateY(-50%);
   opacity: 0.68;
@@ -426,7 +426,8 @@
   filter: none;
   transition:
     opacity 150ms ease,
-    background 120ms ease;
+    background-color 120ms ease,
+    box-shadow 120ms ease;
 }
 
 .pcp-slider:hover .pcp-slider-handle,

@@ -5,7 +5,6 @@ export type {
   FormatField,
   OklchColor,
   PickerHeaderAction,
-  PickerPlaneMode,
   PickerTheme,
   ThemeChangeDetail,
 } from './types'

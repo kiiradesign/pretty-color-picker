@@ -5,7 +5,6 @@ const toRgb = converter('rgb')
 const toHsv = converter('hsv')
 const toHsl = converter('hsl')
 
-const HUE_SLIDER_L = 0.7
 const maxChromaCache = new Map<string, number>()
 
 /** Below this OKLCH chroma, hue is undefined — plane hue must be preserved separately. */
@@ -93,11 +92,16 @@ export function oklchToRgb(color: OklchColor): { r: number; g: number; b: number
   }
 }
 
-/** Max-chroma OKLCH sample for the hue slider at position t ∈ [0, 1]. */
+/** RGB under the hue slider handle — matches the HSV rainbow in CSS, not OKLCH. */
 export function rgbAtHueSlider(t: number): { r: number; g: number; b: number } {
   const hue = clampHue(Math.max(0, Math.min(1, t)) * 360)
-  const c = maxChromaFor(HUE_SLIDER_L, hue)
-  return oklchToRgb(normalizeOklch({ l: HUE_SLIDER_L, c, h: hue, alpha: 1 }))
+  const rgb = toRgb({ mode: 'hsv', h: hue, s: 1, v: 1, alpha: 1 })
+  if (!rgb) return { r: 255, g: 0, b: 0 }
+  return {
+    r: Math.round((rgb.r ?? 0) * 255),
+    g: Math.round((rgb.g ?? 0) * 255),
+    b: Math.round((rgb.b ?? 0) * 255),
+  }
 }
 
 export function oklchToAlphaGradient(color: OklchColor): string {

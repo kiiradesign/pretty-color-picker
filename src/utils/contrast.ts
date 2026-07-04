@@ -16,6 +16,17 @@ export function handleColorForRgb(r: number, g: number, b: number): string {
   return relativeLuminance255(r, g, b) > LUMINANCE_THRESHOLD ? HANDLE_DARK : HANDLE_LIGHT
 }
 
+export function sliderHandleStyleForRgb(
+  r: number,
+  g: number,
+  b: number,
+): { backgroundColor: string; boxShadow: string } {
+  return {
+    backgroundColor: handleColorForRgb(r, g, b),
+    boxShadow: 'none',
+  }
+}
+
 export function parseHexColor(input: string): Rgb255 | null {
   const hex = input.replace('#', '').trim()
   if (!hex) return null

@@ -61,11 +61,15 @@ function updateDemoChromeFromColor(color: OklchColor | string): void {
   updateDemoChromeHint()
 }
 
-function applyDemoDefaults(): void {
+function applyStartupDefaults(): void {
   const color = defaultDemoColor(resolvedPickerTheme())
   picker.value = color
   applyPageBackground(color)
   updateDemoChromeFromColor(color)
+}
+
+function onThemeSwitch(): void {
+  updateDemoChromeFromColor(picker.color)
 }
 
 function syncResponsiveChrome(): void {
@@ -105,7 +109,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
 
 function setDemoTheme(theme: 'light' | 'dark'): void {
   picker.theme = theme
-  applyDemoDefaults()
+  onThemeSwitch()
 }
 
 picker.addEventListener('change', (event) => {
@@ -114,7 +118,7 @@ picker.addEventListener('change', (event) => {
 })
 
 picker.addEventListener('themechange', () => {
-  applyDemoDefaults()
+  onThemeSwitch()
 })
 
 document.addEventListener('keydown', (event) => {
@@ -134,4 +138,4 @@ document.addEventListener('keydown', (event) => {
 window.matchMedia(DEMO_MOBILE_QUERY).addEventListener('change', syncResponsiveChrome)
 
 syncResponsiveChrome()
-applyDemoDefaults()
+applyStartupDefaults()

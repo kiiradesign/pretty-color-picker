@@ -12,8 +12,6 @@ export type PickerTheme = 'dark' | 'light' | 'system'
 
 export type PickerHeaderAction = 'close' | 'theme' | 'none'
 
-export type PickerPlaneMode = 'oklch' | 'hsl' | 'rgb'
-
 export interface FormatField {
   key: string
   label: string

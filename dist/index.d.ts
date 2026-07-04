@@ -44,8 +44,6 @@ export declare function parseFormatFields(format: ColorFormat, fields: Record<st
 
 export declare type PickerHeaderAction = 'close' | 'theme' | 'none';
 
-export declare type PickerPlaneMode = 'oklch' | 'hsl' | 'rgb';
-
 export declare type PickerTheme = 'dark' | 'light' | 'system';
 
 export declare class PrettyColorPicker extends HTMLElement {

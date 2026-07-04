@@ -24,7 +24,7 @@ import {
 import { colorsEqual, loadHistory, saveToHistory } from './utils/history'
 import {
   compositeOverChecker,
-  handleColorForRgb,
+  sliderHandleStyleForRgb,
   parseHexColor,
   type Rgb255,
 } from './utils/contrast'
@@ -690,7 +690,13 @@ export class PrettyColorPicker extends HTMLElement {
 
   #updateSliderHandleColor(handle: HTMLElement, t: number, kind: 'hue' | 'alpha'): void {
     const sample = this.#sampleSliderBackground(t, kind)
-    handle.style.background = handleColorForRgb(sample.r, sample.g, sample.b)
+    const { backgroundColor, boxShadow } = sliderHandleStyleForRgb(
+      sample.r,
+      sample.g,
+      sample.b,
+    )
+    handle.style.backgroundColor = backgroundColor
+    handle.style.boxShadow = boxShadow
   }
 
   #updateSliderHandle(handle: HTMLElement, t: number, kind: 'hue' | 'alpha'): void {
