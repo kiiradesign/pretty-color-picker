@@ -324,13 +324,12 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #syncHistorySection(): void {
-    if (this.history) {
-      this.#historySection.hidden = false
-      this.#refreshHistory()
-    } else {
+    if (!this.history) {
       this.#historySection.hidden = true
       this.#historyContainer.innerHTML = ''
+      return
     }
+    this.#refreshHistory()
   }
 
   #syncMovable(): void {
@@ -756,6 +755,8 @@ export class PrettyColorPicker extends HTMLElement {
 
   #refreshHistory(): void {
     if (!this.history) return
+
+    this.#historySection.hidden = this.#history.length === 0
 
     this.#historyContainer.innerHTML = this.#history
       .map((c, i) => {
