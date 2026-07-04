@@ -63,6 +63,9 @@ export declare class PrettyColorPicker extends HTMLElement {
     set headerAction(value: PickerHeaderAction);
     get movable(): boolean;
     set movable(value: boolean);
+    /** Last Used swatch grid — on by default; set `history="false"` to hide. */
+    get history(): boolean;
+    set history(value: boolean);
 }
 
 export declare interface ThemeChangeDetail {

@@ -613,6 +613,18 @@
   text-align: center;
 }
 
+.pcp-fields:not([data-format='hex']) .pcp-field-label,
+.pcp-alpha-field .pcp-field-label {
+  cursor: ew-resize;
+  user-select: none;
+  touch-action: none;
+  transition: color 150ms var(--pcp-ease-out);
+}
+
+.pcp-field-label[data-scrubbing='true'] {
+  color: var(--pcp-text-primary);
+}
+
 .pcp-field-input {
   width: 100%;
   min-width: 0;
@@ -650,6 +662,10 @@
 
 .pcp-field-input:active {
   background: var(--pcp-surface-active);
+}
+
+.pcp-history-section[hidden] {
+  display: none;
 }
 
 .pcp-history-label {

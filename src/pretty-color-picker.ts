@@ -23,7 +23,7 @@ import {
   parseHexColor,
   type Rgb255,
 } from './utils/contrast'
-import { bindPointerDrag } from './utils/pointer'
+import { bindHorizontalScrub, bindPointerDrag } from './utils/pointer'
 import { bindPanelDrag, centerPanel } from './utils/panel-drag'
 import {
   DEFAULT_COLOR,
@@ -33,6 +33,7 @@ import {
   type PickerHeaderAction,
   type PickerTheme,
   type ThemeChangeDetail,
+  type FormatField,
 } from './types'
 
 type RefreshOptions = {
@@ -49,7 +50,7 @@ const FORMAT_LABELS: Record<ColorFormat, string> = {
 
 export class PrettyColorPicker extends HTMLElement {
   static get observedAttributes(): string[] {
-    return ['value', 'theme', 'header-action', 'movable']
+    return ['value', 'theme', 'header-action', 'movable', 'history']
   }
 
   #shadow: ShadowRoot
@@ -72,6 +73,7 @@ export class PrettyColorPicker extends HTMLElement {
   #swatchFill!: HTMLElement
   #alphaInput!: HTMLInputElement
   #historyContainer!: HTMLElement
+  #historySection!: HTMLElement
   #themeToggleBtn: HTMLButtonElement | null = null
   #movableCleanup: (() => void) | null = null
 
@@ -107,6 +109,9 @@ export class PrettyColorPicker extends HTMLElement {
     }
     if (name === 'movable') {
       this.#syncMovable()
+    }
+    if (name === 'history') {
+      this.#syncHistorySection()
     }
   }
 
@@ -156,6 +161,18 @@ export class PrettyColorPicker extends HTMLElement {
   set movable(value: boolean) {
     if (value) this.setAttribute('movable', '')
     else this.removeAttribute('movable')
+  }
+
+  /** Last Used swatch grid — on by default; set `history="false"` to hide. */
+  get history(): boolean {
+    const value = this.getAttribute('history')
+    if (value === null) return true
+    return value !== 'false' && value !== '0'
+  }
+
+  set history(value: boolean) {
+    if (value) this.removeAttribute('history')
+    else this.setAttribute('history', 'false')
   }
 
   #applyValueAttribute(): void {
@@ -218,8 +235,10 @@ export class PrettyColorPicker extends HTMLElement {
             <input class="pcp-field-input pcp-alpha-input" type="text" inputmode="numeric" value="80%" aria-label="Opacity" />
           </div>
         </div>
-        <p class="pcp-history-label">Last Used</p>
-        <div class="pcp-history"></div>
+        <div class="pcp-history-section">
+          <p class="pcp-history-label">Last Used</p>
+          <div class="pcp-history"></div>
+        </div>
       </div>
     `
 
@@ -235,6 +254,7 @@ export class PrettyColorPicker extends HTMLElement {
     this.#fieldsContainer = this.#shadow.querySelector('.pcp-fields')!
     this.#swatchFill = this.#shadow.querySelector('.pcp-swatch-fill')!
     this.#alphaInput = this.#shadow.querySelector('.pcp-alpha-input')!
+    this.#historySection = this.#shadow.querySelector('.pcp-history-section')!
     this.#historyContainer = this.#shadow.querySelector('.pcp-history')!
     this.#themeToggleBtn = this.#shadow.querySelector('.pcp-theme-toggle')
     this.#updateThemeToggleButton()
@@ -297,7 +317,20 @@ export class PrettyColorPicker extends HTMLElement {
       if (e.key === 'Enter') this.#onAlphaInput()
     })
 
+    this.#cleanups.push(this.#bindAlphaLabelScrub())
+
     this.#syncMovable()
+    this.#syncHistorySection()
+  }
+
+  #syncHistorySection(): void {
+    if (this.history) {
+      this.#historySection.hidden = false
+      this.#refreshHistory()
+    } else {
+      this.#historySection.hidden = true
+      this.#historyContainer.innerHTML = ''
+    }
   }
 
   #syncMovable(): void {
@@ -457,15 +490,127 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #onFieldInput(key: string, value: string): void {
+    this.#applyFieldValues({ [key]: value }, true)
+  }
+
+  #applyFieldValues(overrides: Record<string, string>, commit = true): void {
     const fields: Record<string, string> = {}
     formatFieldsFor(this.#color, this.#format).forEach((f) => {
-      fields[f.key] = f.key === key ? value : f.value
+      fields[f.key] = overrides[f.key] ?? f.value
     })
     const parsed = parseFormatFields(this.#format, fields, this.#color)
     if (parsed) {
       this.#setColor(parsed, true)
-      this.#commitHistory()
+      if (commit) this.#commitHistory()
     }
+  }
+
+  #scrubStepFor(def: FormatField, fine: boolean): number {
+    const min = def.min ?? 0
+    const max = def.max ?? 100
+    const range = max - min
+    const base = def.step != null && def.step < 1 ? range / 120 : (def.step ?? 1)
+    return fine ? base * 0.1 : base
+  }
+
+  #formatScrubbedValue(def: FormatField, value: number): string {
+    if (def.step != null && def.step < 1) return value.toFixed(3)
+    return String(Math.round(value))
+  }
+
+  #scrubField(key: string, def: FormatField, deltaX: number, fine: boolean): void {
+    const current = formatFieldsFor(this.#color, this.#format).find((f) => f.key === key)
+    if (!current) return
+
+    const min = def.min ?? 0
+    const max = def.max ?? 100
+    const step = this.#scrubStepFor(def, fine)
+    let next = Number(current.value) + deltaX * step
+
+    if (def.step != null && def.step < 1) {
+      next = Math.round(next / def.step) * def.step
+      next = Math.min(max, Math.max(min, next))
+    } else {
+      next = Math.min(max, Math.max(min, Math.round(next)))
+    }
+
+    const formatted = this.#formatScrubbedValue(def, next)
+    const fields: Record<string, string> = {}
+    formatFieldsFor(this.#color, this.#format).forEach((f) => {
+      fields[f.key] = f.key === key ? formatted : f.value
+    })
+
+    const parsed = parseFormatFields(this.#format, fields, this.#color)
+    if (!parsed) return
+
+    this.#setColor(parsed, true, { refreshFields: false })
+
+    const input = this.#fieldsContainer.querySelector(
+      `.pcp-field-input[data-key="${key}"]`,
+    ) as HTMLInputElement | null
+    if (input) input.value = formatted
+  }
+
+  #scrubAlpha(deltaX: number, fine: boolean): void {
+    const step = fine ? 0.05 : 0.5
+    let nextPct = this.#color.alpha * 100 + deltaX * step
+    nextPct = Math.min(100, Math.max(0, fine ? nextPct : Math.round(nextPct)))
+    const alpha = nextPct / 100
+
+    this.#setColor(normalizeOklch({ ...this.#color, alpha }), true, { refreshFields: false })
+    this.#alphaInput.value = `${Math.round(nextPct)}%`
+  }
+
+  #bindAlphaLabelScrub(): () => void {
+    const labelEl = this.#shadow.querySelector('.pcp-alpha-field .pcp-field-label') as HTMLElement | null
+    if (!labelEl) return () => {}
+
+    return bindHorizontalScrub(labelEl, {
+      onStart: () => {
+        this.#captureEditStart()
+        labelEl.setAttribute('data-scrubbing', 'true')
+        document.body.style.cursor = 'ew-resize'
+      },
+      onDelta: (deltaX, event) => this.#scrubAlpha(deltaX, event.shiftKey),
+      onEnd: () => {
+        labelEl.removeAttribute('data-scrubbing')
+        document.body.style.cursor = ''
+        this.#commitHistory()
+        this.#refreshAlphaField()
+      },
+    })
+  }
+
+  #bindFieldLabelScrubs(defs: FormatField[]): void {
+    if (this.#format === 'hex') return
+
+    this.#fieldsContainer.querySelectorAll('.pcp-field-label').forEach((labelEl) => {
+      const fieldEl = labelEl.closest('.pcp-field')
+      if (!fieldEl) return
+
+      const key = [...fieldEl.classList]
+        .find((c) => c.startsWith('pcp-field-') && c !== 'pcp-field')
+        ?.slice('pcp-field-'.length)
+      if (!key) return
+
+      const def = defs.find((f) => f.key === key)
+      if (!def || def.min == null || def.max == null) return
+
+      bindHorizontalScrub(labelEl as HTMLElement, {
+        onStart: () => {
+          this.#captureEditStart()
+          labelEl.setAttribute('data-scrubbing', 'true')
+          document.body.style.cursor = 'ew-resize'
+        },
+        onDelta: (deltaX, event) => this.#scrubField(key, def, deltaX, event.shiftKey),
+        onEnd: () => {
+          labelEl.removeAttribute('data-scrubbing')
+          document.body.style.cursor = ''
+          this.#commitHistory()
+          this.#refreshFields()
+        },
+      })
+    })
   }
 
   #setColor(color: OklchColor, emit = true, options?: RefreshOptions): void {
@@ -585,6 +730,8 @@ export class PrettyColorPicker extends HTMLElement {
       })
     })
 
+    this.#bindFieldLabelScrubs(fields)
+
     this.#refreshAlphaField()
   }
 
@@ -608,6 +755,8 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #refreshHistory(): void {
+    if (!this.history) return
+
     this.#historyContainer.innerHTML = this.#history
       .map((c, i) => {
         return `
@@ -641,10 +790,10 @@ export class PrettyColorPicker extends HTMLElement {
     delete this.#alphaRow.dataset.active
     const previous = this.#editStartColor
     this.#editStartColor = null
-    if (previous && !colorsEqual(previous, this.#color)) {
+    if (this.history && previous && !colorsEqual(previous, this.#color)) {
       this.#history = saveToHistory(previous, this.#history)
+      this.#refreshHistory()
     }
-    this.#refreshHistory()
   }
 
   #emitChange(): void {

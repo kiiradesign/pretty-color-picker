@@ -24,6 +24,9 @@ import 'pretty-color-picker'
 
 ```html
 <pretty-color-picker value="#6366f1" theme="system" header-action="close"></pretty-color-picker>
+
+<!-- Without Last Used history -->
+<pretty-color-picker value="#6366f1" history="false"></pretty-color-picker>
 ```
 
 
@@ -32,11 +35,12 @@ import 'pretty-color-picker'
 | `value`         | CSS color                   | Initial color                |
 | `theme`         | `light` | `dark` | `system` | Chrome theme                 |
 | `header-action` | `close` | `theme`           | Close button or theme toggle |
+| `history`       | `false` to hide             | Last Used swatch grid (on by default) |
 
 
 **Events:** `change` (`detail.color`, `detail.css`, `detail.hex`) — on commit, not live typing. `close` when `header-action="close"`. `themechange` when `header-action="theme"`.
 
-**API:** `picker.value`, `picker.color` (OKLCH), `picker.theme`, `picker.headerAction`.
+**API:** `picker.value`, `picker.color` (OKLCH), `picker.theme`, `picker.headerAction`, `picker.history`.
 
 TypeScript types exported from `pretty-color-picker`.
 

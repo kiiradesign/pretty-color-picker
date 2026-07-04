@@ -8,6 +8,58 @@ export function pointerPosition(
   return { x, y }
 }
 
+export function bindHorizontalScrub(
+  element: HTMLElement,
+  callbacks: {
+    onDelta: (deltaX: number, event: PointerEvent) => void
+    onStart?: (event: PointerEvent) => void
+    onEnd?: (event: PointerEvent) => void
+  },
+): () => void {
+  let active = false
+
+  const handleMove = (event: PointerEvent) => {
+    if (!active || event.movementX === 0) return
+    callbacks.onDelta(event.movementX, event)
+  }
+
+  const handleUp = (event: PointerEvent) => {
+    if (!active) return
+    active = false
+    if (event.pointerId != null) {
+      try {
+        element.releasePointerCapture(event.pointerId)
+      } catch {
+        // ignore
+      }
+    }
+    window.removeEventListener('pointermove', handleMove)
+    window.removeEventListener('pointerup', handleUp)
+    window.removeEventListener('pointercancel', handleUp)
+    callbacks.onEnd?.(event)
+  }
+
+  const handleDown = (event: PointerEvent) => {
+    if (event.button !== 0) return
+    event.preventDefault()
+    active = true
+    element.setPointerCapture(event.pointerId)
+    callbacks.onStart?.(event)
+    window.addEventListener('pointermove', handleMove)
+    window.addEventListener('pointerup', handleUp)
+    window.addEventListener('pointercancel', handleUp)
+  }
+
+  element.addEventListener('pointerdown', handleDown)
+
+  return () => {
+    element.removeEventListener('pointerdown', handleDown)
+    window.removeEventListener('pointermove', handleMove)
+    window.removeEventListener('pointerup', handleUp)
+    window.removeEventListener('pointercancel', handleUp)
+  }
+}
+
 export function bindPointerDrag(
   element: HTMLElement,
   onMove: (x: number, y: number) => void,
