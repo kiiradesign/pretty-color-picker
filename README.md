@@ -14,7 +14,7 @@ Saturation × value color plane with hue and alpha sliders, format tabs (Hex / R
 
 ## Install
 
-Published on npm as [`pretty-color-picker`](https://www.npmjs.com/package/pretty-color-picker) (v0.1.1).
+Published on npm as [`pretty-color-picker`](https://www.npmjs.com/package/pretty-color-picker) (v0.1.2).
 
 ```bash
 npm install pretty-color-picker

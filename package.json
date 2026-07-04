@@ -1,6 +1,6 @@
 {
   "name": "pretty-color-picker",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A perceptually accurate color picker. OKLCH storage, classic saturation × value plane.",
   "type": "module",
   "main": "./dist/pretty-color-picker.umd.cjs",
