@@ -15,8 +15,8 @@
   );
   --pcp-control-height: var(--pcp-history-swatch-size);
   --pcp-tab-row-height: 32px;
-  --pcp-field-label-size: 10px;
-  --pcp-field-label-line: 12px;
+  --pcp-field-label-size: 11px;
+  --pcp-field-label-line: 13.2px;
   --pcp-field-label-gap: 3px;
   --pcp-field-value-size: 11px;
   --pcp-field-value-line: 15px;
@@ -36,11 +36,12 @@
   --pcp-field-input-radius: var(--pcp-radius-sm);
   --pcp-icon-button-size: 26px;
   --pcp-icon-button-radius: var(--pcp-radius-sm);
-  /* Geist heading — scaled down from 14px */
-  --pcp-title-size: 12px;
-  --pcp-title-line: 17px;
-  --pcp-title-weight: 600;
-  --pcp-title-tracking: -0.24px;
+  /* panel-kicker — matches Geist editor sidebars (PALETTE, PARAMETERS, etc.) */
+  --pcp-kicker-size: 11px;
+  --pcp-kicker-line: 1.2;
+  --pcp-kicker-weight: 600;
+  --pcp-kicker-tracking: 0.08em;
+  --pcp-text-kicker: #8f8f8f;
   --pcp-ease-out: cubic-bezier(0.175, 0.885, 0.32, 1.1);
   --pcp-font: 'Geist', system-ui, -apple-system, 'SF Pro Display', sans-serif;
   --pcp-mono: 'Geist Mono', ui-monospace, monospace;
@@ -86,8 +87,10 @@
   --pcp-tab-pill: rgba(255, 255, 255, 0.11);
   --pcp-divider: rgba(255, 255, 255, 0.06);
   --pcp-text-root: #ffffff;
+  --pcp-text-section: rgba(255, 255, 255, 0.7);
   --pcp-text-primary: rgba(255, 255, 255, 0.95);
   --pcp-text-label: rgba(255, 255, 255, 0.7);
+  --pcp-text-muted: #a0a0a0;
   --pcp-text-secondary: rgba(255, 255, 255, 0.6);
   --pcp-text-tertiary: rgba(255, 255, 255, 0.4);
   --pcp-text-focus: #ffffff;
@@ -112,8 +115,10 @@
   --pcp-tab-pill: rgba(0, 0, 0, 0.1);
   --pcp-divider: rgba(0, 0, 0, 0.06);
   --pcp-text-root: #000000;
+  --pcp-text-section: rgba(0, 0, 0, 0.65);
   --pcp-text-primary: rgba(0, 0, 0, 0.9);
   --pcp-text-label: rgba(0, 0, 0, 0.6);
+  --pcp-text-muted: #4d4d4d;
   --pcp-text-secondary: rgba(0, 0, 0, 0.55);
   --pcp-text-tertiary: rgba(0, 0, 0, 0.35);
   --pcp-text-focus: #000000;
@@ -138,8 +143,10 @@
     --pcp-tab-pill: rgba(255, 255, 255, 0.11);
     --pcp-divider: rgba(255, 255, 255, 0.06);
     --pcp-text-root: #ffffff;
+    --pcp-text-section: rgba(255, 255, 255, 0.7);
     --pcp-text-primary: rgba(255, 255, 255, 0.95);
     --pcp-text-label: rgba(255, 255, 255, 0.7);
+    --pcp-text-muted: #a0a0a0;
     --pcp-text-secondary: rgba(255, 255, 255, 0.6);
     --pcp-text-tertiary: rgba(255, 255, 255, 0.4);
     --pcp-text-focus: #ffffff;
@@ -165,8 +172,10 @@
     --pcp-tab-pill: rgba(0, 0, 0, 0.1);
     --pcp-divider: rgba(0, 0, 0, 0.06);
     --pcp-text-root: #000000;
+    --pcp-text-section: rgba(0, 0, 0, 0.65);
     --pcp-text-primary: rgba(0, 0, 0, 0.9);
     --pcp-text-label: rgba(0, 0, 0, 0.6);
+    --pcp-text-muted: #4d4d4d;
     --pcp-text-secondary: rgba(0, 0, 0, 0.55);
     --pcp-text-tertiary: rgba(0, 0, 0, 0.35);
     --pcp-text-focus: #000000;
@@ -265,11 +274,12 @@
   flex: 1;
   min-width: 0;
   font-family: var(--pcp-font);
-  font-size: var(--pcp-title-size);
-  font-weight: var(--pcp-title-weight);
-  line-height: var(--pcp-title-line);
-  letter-spacing: var(--pcp-title-tracking);
-  color: var(--pcp-text-root);
+  font-size: var(--pcp-kicker-size);
+  font-weight: var(--pcp-kicker-weight);
+  line-height: var(--pcp-kicker-line);
+  letter-spacing: var(--pcp-kicker-tracking);
+  text-transform: uppercase;
+  color: var(--pcp-text-kicker);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -621,10 +631,12 @@
 
 .pcp-field-label {
   display: block;
-  font-size: var(--pcp-field-label-size);
-  font-weight: 500;
-  line-height: var(--pcp-field-label-line);
-  color: var(--pcp-text-label);
+  font-size: var(--pcp-kicker-size);
+  font-weight: var(--pcp-kicker-weight);
+  line-height: var(--pcp-kicker-line);
+  letter-spacing: var(--pcp-kicker-tracking);
+  text-transform: uppercase;
+  color: var(--pcp-text-kicker);
   margin: 0;
   text-align: center;
 }
@@ -638,7 +650,7 @@
 }
 
 .pcp-field-label[data-scrubbing='true'] {
-  color: var(--pcp-text-primary);
+  color: var(--pcp-text-muted);
 }
 
 .pcp-field-input {
@@ -685,11 +697,12 @@
 }
 
 .pcp-history-label {
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: var(--pcp-kicker-size);
+  font-weight: var(--pcp-kicker-weight);
+  line-height: var(--pcp-kicker-line);
+  letter-spacing: var(--pcp-kicker-tracking);
   text-transform: uppercase;
-  color: var(--pcp-text-label);
+  color: var(--pcp-text-kicker);
   margin: 0 0 5px;
 }
 
