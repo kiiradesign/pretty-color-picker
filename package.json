@@ -20,6 +20,7 @@
     "dev": "vite --config vite.demo.config.ts",
     "build": "tsc && vite build",
     "build:demo": "vite build --config vite.demo.config.ts",
+    "generate-favicon": "node scripts/generate-favicon.mjs",
     "preview": "vite preview --config vite.demo.config.ts"
   },
   "keywords": [
