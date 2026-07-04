@@ -10,7 +10,7 @@ The design and interactions are inspired by [DialKit](https://joshpuckett.me/dia
 
 ## Features
 
-Saturation × value color plane with hue and alpha sliders, format tabs (Hex / RGB / HSL / OKLCH), Last Used history, label scrubbing, **popover** mode (anchored to a trigger), draggable panel header, light / dark / system themes, Shadow DOM.
+Saturation × value color plane with hue and alpha sliders, format tabs (Hex / RGB / HSL / OKLCH), Last Used history, field label scrubbing, **popover** mode (anchored to a trigger), draggable panel header, customizable panel title, light / dark / system themes, Shadow DOM.
 
 ## Install
 
@@ -28,6 +28,9 @@ import 'pretty-color-picker'
 
 ```html
 <pretty-color-picker value="#6366f1" theme="system" header-action="close"></pretty-color-picker>
+
+<!-- Custom panel title -->
+<pretty-color-picker value="#6366f1" label="Brand color"></pretty-color-picker>
 
 <!-- Popover anchored to a trigger (click outside or Escape to close) -->
 <button type="button" id="color-btn">Pick color</button>
@@ -49,6 +52,7 @@ import 'pretty-color-picker'
 | Attribute       | Values                      | Description                                      |
 | --------------- | --------------------------- | ------------------------------------------------ |
 | `value`         | CSS color                   | Initial color                                    |
+| `label`         | string                      | Panel header title (default: `Pretty Color Picker`; `label=""` hides it) |
 | `theme`         | `light` \| `dark` \| `system` | Chrome theme                                     |
 | `header-action` | `close` \| `theme` \| `none` | Close button, theme toggle, or no header button |
 | `mode`          | `inline` \| `popover`       | `popover` = floating panel anchored to `anchor` |
@@ -60,7 +64,7 @@ import 'pretty-color-picker'
 
 **Events:** `change` (`detail.color`, `detail.css`, `detail.hex`) fires while dragging sliders or scrubbing labels; field inputs commit on Enter/blur. Not fired on mount. `close` when the panel closes (`header-action="close"` or popover dismiss). `themechange` when the user clicks the built-in theme toggle (`header-action="theme"`).
 
-**API:** `picker.value`, `picker.color` (OKLCH), `picker.theme`, `picker.headerAction`, `picker.mode`, `picker.anchor`, `picker.open`, `picker.show()`, `picker.hide()`, `picker.toggle()`, `picker.movable`, `picker.history`.
+**API:** `picker.value`, `picker.color` (OKLCH), `picker.label`, `picker.theme`, `picker.headerAction`, `picker.mode`, `picker.anchor`, `picker.open`, `picker.show()`, `picker.hide()`, `picker.toggle()`, `picker.movable`, `picker.history`.
 
 TypeScript types exported from `pretty-color-picker`.
 

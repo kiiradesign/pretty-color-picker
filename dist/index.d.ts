@@ -8,6 +8,8 @@ export declare type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'oklch';
 
 export declare const DEFAULT_COLOR: OklchColor;
 
+export declare const DEFAULT_PICKER_LABEL = "Pretty Color Picker";
+
 export declare interface FormatField {
     key: string;
     label: string;
@@ -61,6 +63,9 @@ export declare class PrettyColorPicker extends HTMLElement {
     set theme(value: PickerTheme);
     get headerAction(): PickerHeaderAction;
     set headerAction(value: PickerHeaderAction);
+    /** Panel header title. Default `Pretty Color Picker`. Set `label=""` to hide. */
+    get label(): string;
+    set label(value: string);
     get movable(): boolean;
     set movable(value: boolean);
     /** `inline` (default) or `popover` for a floating panel anchored to `anchor`. */

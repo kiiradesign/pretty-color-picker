@@ -44,3 +44,5 @@ export const DEFAULT_COLOR: OklchColor = {
 export const HISTORY_KEY = 'pretty-color-picker-history'
 export const HISTORY_COLUMNS = 8
 export const HISTORY_LIMIT = 16
+
+export const DEFAULT_PICKER_LABEL = 'Pretty Color Picker'

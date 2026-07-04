@@ -9,6 +9,7 @@ export type {
   ThemeChangeDetail,
 } from './types'
 export { DEFAULT_COLOR } from './types'
+export { DEFAULT_PICKER_LABEL } from './types'
 export {
   normalizeOklch,
   oklchFromCss,

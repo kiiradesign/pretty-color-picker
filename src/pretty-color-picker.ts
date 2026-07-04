@@ -33,6 +33,7 @@ import { bindPanelDrag, centerPanel } from './utils/panel-drag'
 import { positionPopover, resolveAnchor } from './utils/popover'
 import {
   DEFAULT_COLOR,
+  DEFAULT_PICKER_LABEL,
   type ColorChangeDetail,
   type ColorFormat,
   type OklchColor,
@@ -60,7 +61,7 @@ const FORMAT_LABELS: Record<ColorFormat, string> = {
 
 export class PrettyColorPicker extends HTMLElement {
   static get observedAttributes(): string[] {
-    return ['value', 'theme', 'header-action', 'movable', 'mode', 'anchor', 'open', 'history']
+    return ['value', 'theme', 'label', 'header-action', 'movable', 'mode', 'anchor', 'open', 'history']
   }
 
   #shadow: ShadowRoot
@@ -84,6 +85,7 @@ export class PrettyColorPicker extends HTMLElement {
   #alphaInput!: HTMLInputElement
   #historyContainer!: HTMLElement
   #historySection!: HTMLElement
+  #titleEl!: HTMLElement
   #themeToggleBtn: HTMLButtonElement | null = null
   #headerButtonCleanup: (() => void) | null = null
   #movableCleanup: (() => void) | null = null
@@ -154,6 +156,9 @@ export class PrettyColorPicker extends HTMLElement {
     if (name === 'header-action') {
       this.#syncHeaderButton()
     }
+    if (name === 'label') {
+      this.#syncTitleLabel()
+    }
   }
 
   get value(): string {
@@ -196,6 +201,18 @@ export class PrettyColorPicker extends HTMLElement {
 
   set headerAction(value: PickerHeaderAction) {
     this.setAttribute('header-action', value)
+  }
+
+  /** Panel header title. Default `Pretty Color Picker`. Set `label=""` to hide. */
+  get label(): string {
+    const value = this.getAttribute('label')
+    if (value === null) return DEFAULT_PICKER_LABEL
+    return value
+  }
+
+  set label(value: string) {
+    if (value === DEFAULT_PICKER_LABEL) this.removeAttribute('label')
+    else this.setAttribute('label', value)
   }
 
   get movable(): boolean {
@@ -303,7 +320,7 @@ export class PrettyColorPicker extends HTMLElement {
       <style>${styles}</style>
       <div class="pcp" part="container">
         <header class="pcp-header">
-          <h2 class="pcp-title">Pretty Color Picker</h2>
+          <h2 class="pcp-title" part="title"></h2>
           ${headerButton}
         </header>
         <div class="pcp-plane-wrap pcp-clip">
@@ -357,6 +374,8 @@ export class PrettyColorPicker extends HTMLElement {
     this.#alphaInput = this.#shadow.querySelector('.pcp-alpha-input')!
     this.#historySection = this.#shadow.querySelector('.pcp-history-section')!
     this.#historyContainer = this.#shadow.querySelector('.pcp-history')!
+    this.#titleEl = this.#shadow.querySelector('.pcp-title')!
+    this.#syncTitleLabel()
     this.#themeToggleBtn = this.#shadow.querySelector('.pcp-theme-toggle')
     this.#updateThemeToggleButton()
   }
@@ -521,6 +540,18 @@ export class PrettyColorPicker extends HTMLElement {
       return
     }
     this.#refreshHistory()
+  }
+
+  #syncTitleLabel(): void {
+    if (!this.#titleEl) return
+    const explicit = this.getAttribute('label')
+    if (explicit === '') {
+      this.#titleEl.hidden = true
+      this.#titleEl.textContent = ''
+      return
+    }
+    this.#titleEl.hidden = false
+    this.#titleEl.textContent = this.label
   }
 
   #syncMovable(): void {

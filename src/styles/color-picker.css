@@ -257,6 +257,10 @@
   border-bottom: 1px solid var(--pcp-divider);
 }
 
+.pcp-title[hidden] {
+  display: none;
+}
+
 .pcp-title {
   flex: 1;
   min-width: 0;
