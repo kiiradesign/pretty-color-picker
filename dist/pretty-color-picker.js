@@ -387,8 +387,8 @@ function Xi(e) {
   if (!i)
     return;
   const a = at(t).channels;
-  for (let o = 0, c, u; o < a.length; o++)
-    c = i[o], u = a[o], c.type !== p.None && (r[u] = c.type === p.Number ? c.value : c.value / 100, u === "alpha" && (r[u] = Math.max(0, Math.min(1, r[u]))));
+  for (let o = 0, c, h; o < a.length; o++)
+    c = i[o], h = a[o], c.type !== p.None && (r[h] = c.type === p.Number ? c.value : c.value / 100, h === "alpha" && (r[h] = Math.max(0, Math.min(1, r[h]))));
   return r;
 }
 function vr(e, n) {
@@ -460,7 +460,7 @@ const ji = (e) => e === "transparent" ? { mode: "rgb", r: 0, g: 0, b: 0, alpha: 
     let i = r * t.length, a = r >= 1 ? t.length - 1 : Math.max(Math.floor(i), 0), o = t[a];
     return o === void 0 ? void 0 : e(o[0], o[1], i - a);
   };
-}, h = Bi(Zi), L = (e) => {
+}, u = Bi(Zi), L = (e) => {
   let n = !1, t = e.map((r) => r !== void 0 ? (n = !0, r) : 1);
   return n ? t : e;
 }, ge = {
@@ -476,10 +476,10 @@ const ji = (e) => e === "transparent" ? { mode: "rgb", r: 0, g: 0, b: 0, alpha: 
   ],
   serialize: "srgb",
   interpolate: {
-    r: h,
-    g: h,
-    b: h,
-    alpha: { use: h, fixup: L }
+    r: u,
+    g: u,
+    b: u,
+    alpha: { use: u, fixup: L }
   },
   gamut: !0,
   white: { r: 1, g: 1, b: 1 },
@@ -563,7 +563,7 @@ const ji = (e) => e === "transparent" ? { mode: "rgb", r: 0, g: 0, b: 0, alpha: 
     return t;
   let a = A(t);
   return r === 0 || e[r - 1] === void 0 ? a : n(a - A(i[r - 1]));
-}).reduce((t, r) => !t.length || r === void 0 || t[t.length - 1] === void 0 ? (t.push(r), t) : (t.push(r + t[t.length - 1]), t), []), G = (e) => Ji(e, (n) => Math.abs(n) <= 180 ? n : n - 360 * Math.sign(n)), S = [-0.14861, 1.78277, -0.29227, -0.90649, 1.97294, 0], Vi = Math.PI / 180, Wi = 180 / Math.PI;
+}).reduce((t, r) => !t.length || r === void 0 || t[t.length - 1] === void 0 ? (t.push(r), t) : (t.push(r + t[t.length - 1]), t), []), W = (e) => Ji(e, (n) => Math.abs(n) <= 180 ? n : n - 360 * Math.sign(n)), S = [-0.14861, 1.78277, -0.29227, -0.90649, 1.97294, 0], Vi = Math.PI / 180, Wi = 180 / Math.PI;
 let Xn = S[3] * S[4], On = S[1] * S[4], Dn = S[1] * S[2] - S[0] * S[3];
 const Ui = ({ r: e, g: n, b: t, alpha: r }) => {
   e === void 0 && (e = 0), n === void 0 && (n = 0), t === void 0 && (t = 0);
@@ -593,7 +593,7 @@ const Ui = ({ r: e, g: n, b: t, alpha: r }) => {
     return 0;
   let t = A(e.h), r = A(n.h), i = Math.sin((r - t + 360) / 2 * Math.PI / 180);
   return 2 * Math.sqrt(e.c * n.c) * i;
-}, J = (e) => {
+}, U = (e) => {
   let n = e.reduce(
     (r, i) => {
       if (i !== void 0) {
@@ -623,13 +623,13 @@ const Ui = ({ r: e, g: n, b: t, alpha: r }) => {
   },
   interpolate: {
     h: {
-      use: h,
-      fixup: G
+      use: u,
+      fixup: W
     },
-    s: h,
-    l: h,
+    s: u,
+    l: u,
     alpha: {
-      use: h,
+      use: u,
       fixup: L
     }
   },
@@ -637,7 +637,7 @@ const Ui = ({ r: e, g: n, b: t, alpha: r }) => {
     h: ot
   },
   average: {
-    h: J
+    h: U
   }
 }, re = ({ l: e, a: n, b: t, alpha: r }, i = "lch") => {
   n === void 0 && (n = 0), t === void 0 && (t = 0);
@@ -717,11 +717,11 @@ const wr = ({ l: e, a: n, b: t, alpha: r }) => {
     b: [-40.469, 44.344]
   },
   interpolate: {
-    l: h,
-    a: h,
-    b: h,
+    l: u,
+    a: u,
+    b: u,
     alpha: {
-      use: h,
+      use: u,
       fixup: L
     }
   }
@@ -746,14 +746,14 @@ const wr = ({ l: e, a: n, b: t, alpha: r }) => {
     h: [0, 360]
   },
   interpolate: {
-    l: h,
-    c: h,
+    l: u,
+    c: u,
     h: {
-      use: h,
-      fixup: G
+      use: u,
+      fixup: W
     },
     alpha: {
-      use: h,
+      use: u,
       fixup: L
     }
   },
@@ -761,7 +761,7 @@ const wr = ({ l: e, a: n, b: t, alpha: r }) => {
     h: st
   },
   average: {
-    h: J
+    h: U
   }
 };
 function ra({ h: e, s: n, i: t, alpha: r }) {
@@ -840,16 +840,16 @@ const aa = {
   },
   gamut: "rgb",
   interpolate: {
-    h: { use: h, fixup: G },
-    s: h,
-    i: h,
-    alpha: { use: h, fixup: L }
+    h: { use: u, fixup: W },
+    s: u,
+    i: u,
+    alpha: { use: u, fixup: L }
   },
   difference: {
     h: ot
   },
   average: {
-    h: J
+    h: U
   }
 };
 function oa({ h: e, s: n, l: t, alpha: r }) {
@@ -950,16 +950,16 @@ const _r = {
   parse: [pa, da],
   serialize: (e) => `hsl(${e.h !== void 0 ? e.h : "none"} ${e.s !== void 0 ? e.s * 100 + "%" : "none"} ${e.l !== void 0 ? e.l * 100 + "%" : "none"}${e.alpha < 1 ? ` / ${e.alpha}` : ""})`,
   interpolate: {
-    h: { use: h, fixup: G },
-    s: h,
-    l: h,
-    alpha: { use: h, fixup: L }
+    h: { use: u, fixup: W },
+    s: u,
+    l: u,
+    alpha: { use: u, fixup: L }
   },
   difference: {
     h: ot
   },
   average: {
-    h: J
+    h: U
   }
 };
 function Tr({ h: e, s: n, v: t, alpha: r }) {
@@ -1014,19 +1014,19 @@ const Nr = {
   },
   gamut: "rgb",
   interpolate: {
-    h: { use: h, fixup: G },
-    s: h,
-    v: h,
-    alpha: { use: h, fixup: L }
+    h: { use: u, fixup: W },
+    s: u,
+    v: u,
+    alpha: { use: u, fixup: L }
   },
   difference: {
     h: ot
   },
   average: {
-    h: J
+    h: U
   }
 };
-function ua({ h: e, w: n, b: t, alpha: r }) {
+function ha({ h: e, w: n, b: t, alpha: r }) {
   if (n === void 0 && (n = 0), t === void 0 && (t = 0), n + t > 1) {
     let i = n + t;
     n /= i, t /= i;
@@ -1038,7 +1038,7 @@ function ua({ h: e, w: n, b: t, alpha: r }) {
     alpha: r
   });
 }
-function ha(e) {
+function ua(e) {
   let n = Lr(e);
   if (n === void 0) return;
   let t = n.s !== void 0 ? n.s : 0, r = n.v !== void 0 ? n.v : 0, i = {
@@ -1078,10 +1078,10 @@ function fa(e, n) {
 const ba = {
   mode: "hwb",
   toMode: {
-    rgb: ua
+    rgb: ha
   },
   fromMode: {
-    rgb: ha
+    rgb: ua
   },
   channels: ["h", "w", "b", "alpha"],
   ranges: {
@@ -1091,27 +1091,27 @@ const ba = {
   parse: [fa],
   serialize: (e) => `hwb(${e.h !== void 0 ? e.h : "none"} ${e.w !== void 0 ? e.w * 100 + "%" : "none"} ${e.b !== void 0 ? e.b * 100 + "%" : "none"}${e.alpha < 1 ? ` / ${e.alpha}` : ""})`,
   interpolate: {
-    h: { use: h, fixup: G },
-    w: h,
-    b: h,
-    alpha: { use: h, fixup: L }
+    h: { use: u, fixup: W },
+    w: u,
+    b: u,
+    alpha: { use: u, fixup: L }
   },
   difference: {
     h: Qi
   },
   average: {
-    h: J
+    h: U
   }
-}, Sr = 203, dt = 0.1593017578125, Ar = 78.84375, pt = 0.8359375, ut = 18.8515625, ht = 18.6875;
+}, Sr = 203, dt = 0.1593017578125, Ar = 78.84375, pt = 0.8359375, ht = 18.8515625, ut = 18.6875;
 function St(e) {
   if (e < 0) return 0;
   const n = Math.pow(e, 1 / Ar);
-  return 1e4 * Math.pow(Math.max(0, n - pt) / (ut - ht * n), 1 / dt);
+  return 1e4 * Math.pow(Math.max(0, n - pt) / (ht - ut * n), 1 / dt);
 }
 function At(e) {
   if (e < 0) return 0;
   const n = Math.pow(e / 1e4, dt);
-  return Math.pow((pt + ut * n) / (1 + ht * n), Ar);
+  return Math.pow((pt + ht * n) / (1 + ut * n), Ar);
 }
 const Ht = (e) => Math.max(e / Sr, 0), Yn = ({ i: e, t: n, p: t, alpha: r }) => {
   e === void 0 && (e = 0), n === void 0 && (n = 0), t === void 0 && (t = 0);
@@ -1137,11 +1137,11 @@ const Ht = (e) => Math.max(e / Sr, 0), Yn = ({ i: e, t: n, p: t, alpha: r }) => 
 }, Ct = (e = 0) => Math.max(e * Sr, 0), Bn = ({ x: e, y: n, z: t, alpha: r }) => {
   const i = Ct(e), a = Ct(n), o = Ct(t), c = At(
     0.3592832590121217 * i + 0.6976051147779502 * a - 0.0358915932320289 * o
-  ), u = At(
+  ), h = At(
     -0.1920808463704995 * i + 1.1004767970374323 * a + 0.0753748658519118 * o
   ), f = At(
     0.0070797844607477 * i + 0.0748396662186366 * a + 0.8433265453898765 * o
-  ), b = 0.5 * c + 0.5 * u, m = 1.61376953125 * c - 3.323486328125 * u + 1.709716796875 * f, v = 4.378173828125 * c - 4.24560546875 * u - 0.132568359375 * f, w = { mode: "itp", i: b, t: m, p: v };
+  ), b = 0.5 * c + 0.5 * h, m = 1.61376953125 * c - 3.323486328125 * h + 1.709716796875 * f, v = 4.378173828125 * c - 4.24560546875 * h - 0.132568359375 * f, w = { mode: "itp", i: b, t: m, p: v };
   return r !== void 0 && (w.alpha = r), w;
 }, ga = {
   mode: "itp",
@@ -1162,31 +1162,31 @@ const Ht = (e) => Math.max(e / Sr, 0), Yn = ({ i: e, t: n, p: t, alpha: r }) => 
     p: [-0.164, 0.331]
   },
   interpolate: {
-    i: h,
-    t: h,
-    p: h,
-    alpha: { use: h, fixup: L }
+    i: u,
+    t: u,
+    p: u,
+    alpha: { use: u, fixup: L }
   }
 }, ma = 134.03437499999998, va = 16295499532821565e-27, Et = (e) => {
   if (e < 0) return 0;
   let n = Math.pow(e / 1e4, dt);
-  return Math.pow((pt + ut * n) / (1 + ht * n), ma);
+  return Math.pow((pt + ht * n) / (1 + ut * n), ma);
 }, Pt = (e = 0) => Math.max(e * 203, 0), Hr = ({ x: e, y: n, z: t, alpha: r }) => {
   e = Pt(e), n = Pt(n), t = Pt(t);
-  let i = 1.15 * e - 0.15 * t, a = 0.66 * n + 0.34 * e, o = Et(0.41478972 * i + 0.579999 * a + 0.014648 * t), c = Et(-0.20151 * i + 1.120649 * a + 0.0531008 * t), u = Et(-0.0166008 * i + 0.2648 * a + 0.6684799 * t), f = (o + c) / 2, b = {
+  let i = 1.15 * e - 0.15 * t, a = 0.66 * n + 0.34 * e, o = Et(0.41478972 * i + 0.579999 * a + 0.014648 * t), c = Et(-0.20151 * i + 1.120649 * a + 0.0531008 * t), h = Et(-0.0166008 * i + 0.2648 * a + 0.6684799 * t), f = (o + c) / 2, b = {
     mode: "jab",
     j: 0.44 * f / (1 - 0.56 * f) - va,
-    a: 3.524 * o - 4.066708 * c + 0.542708 * u,
-    b: 0.199076 * o + 1.096799 * c - 1.295875 * u
+    a: 3.524 * o - 4.066708 * c + 0.542708 * h,
+    b: 0.199076 * o + 1.096799 * c - 1.295875 * h
   };
   return r !== void 0 && (b.alpha = r), b;
 }, xa = 134.03437499999998, Gn = 16295499532821565e-27, It = (e) => {
   if (e < 0) return 0;
   let n = Math.pow(e, 1 / xa);
-  return 1e4 * Math.pow((pt - n) / (ht * n - ut), 1 / dt);
+  return 1e4 * Math.pow((pt - n) / (ut * n - ht), 1 / dt);
 }, qt = (e) => e / 203, Cr = ({ j: e, a: n, b: t, alpha: r }) => {
   e === void 0 && (e = 0), n === void 0 && (n = 0), t === void 0 && (t = 0);
-  let i = (e + Gn) / (0.44 + 0.56 * (e + Gn)), a = It(i + 0.13860504 * n + 0.058047316 * t), o = It(i - 0.13860504 * n - 0.058047316 * t), c = It(i - 0.096019242 * n - 0.8118919 * t), u = {
+  let i = (e + Gn) / (0.44 + 0.56 * (e + Gn)), a = It(i + 0.13860504 * n + 0.058047316 * t), o = It(i - 0.13860504 * n - 0.058047316 * t), c = It(i - 0.096019242 * n - 0.8118919 * t), h = {
     mode: "xyz65",
     x: qt(
       1.661373024652174 * a - 0.914523081304348 * o + 0.23136208173913045 * c
@@ -1196,7 +1196,7 @@ const Ht = (e) => Math.max(e / Sr, 0), Yn = ({ i: e, t: n, p: t, alpha: r }) => 
     ),
     z: qt(-0.090982811 * a - 0.31272829 * o + 1.5227666 * c)
   };
-  return r !== void 0 && (u.alpha = r), u;
+  return r !== void 0 && (h.alpha = r), h;
 }, Er = (e) => {
   let n = Hr(se(e));
   return e.r === e.b && e.b === e.g && (n.a = n.b = 0), n;
@@ -1219,10 +1219,10 @@ const Ht = (e) => Math.max(e / Sr, 0), Yn = ({ i: e, t: n, p: t, alpha: r }) => 
     b: [-0.185, 0.134]
   },
   interpolate: {
-    j: h,
-    a: h,
-    b: h,
-    alpha: { use: h, fixup: L }
+    j: u,
+    a: u,
+    b: u,
+    alpha: { use: u, fixup: L }
   }
 }, Jn = ({ j: e, a: n, b: t, alpha: r }) => {
   n === void 0 && (n = 0), t === void 0 && (t = 0);
@@ -1260,16 +1260,16 @@ const Ht = (e) => Math.max(e / Sr, 0), Yn = ({ i: e, t: n, p: t, alpha: r }) => 
     h: [0, 360]
   },
   interpolate: {
-    h: { use: h, fixup: G },
-    c: h,
-    j: h,
-    alpha: { use: h, fixup: L }
+    h: { use: u, fixup: W },
+    c: u,
+    j: u,
+    alpha: { use: u, fixup: L }
   },
   difference: {
     h: st
   },
   average: {
-    h: J
+    h: U
   }
 }, ft = Math.pow(29, 3) / Math.pow(3, 3), Mn = Math.pow(6, 3) / Math.pow(29, 3);
 let Rt = (e) => Math.pow(e, 3) > Mn ? Math.pow(e, 3) : (116 * e - 16) / ft;
@@ -1343,10 +1343,10 @@ const $n = {
   parse: [wa],
   serialize: (e) => `lab(${e.l !== void 0 ? e.l : "none"} ${e.a !== void 0 ? e.a : "none"} ${e.b !== void 0 ? e.b : "none"}${e.alpha < 1 ? ` / ${e.alpha}` : ""})`,
   interpolate: {
-    l: h,
-    a: h,
-    b: h,
-    alpha: { use: h, fixup: L }
+    l: u,
+    a: u,
+    b: u,
+    alpha: { use: u, fixup: L }
   }
 }, ka = {
   ...$n,
@@ -1411,16 +1411,16 @@ const zn = {
   parse: [$a],
   serialize: (e) => `lch(${e.l !== void 0 ? e.l : "none"} ${e.c !== void 0 ? e.c : "none"} ${e.h !== void 0 ? e.h : "none"}${e.alpha < 1 ? ` / ${e.alpha}` : ""})`,
   interpolate: {
-    h: { use: h, fixup: G },
-    c: h,
-    l: h,
-    alpha: { use: h, fixup: L }
+    h: { use: u, fixup: W },
+    c: u,
+    l: u,
+    alpha: { use: u, fixup: L }
   },
   difference: {
     h: st
   },
   average: {
-    h: J
+    h: U
   }
 }, za = {
   ...zn,
@@ -1472,7 +1472,7 @@ const zn = {
   if (e === void 0 && (e = 0), e === 0)
     return { mode: "xyz50", x: 0, y: 0, z: 0 };
   n === void 0 && (n = 0), t === void 0 && (t = 0);
-  let i = n / (13 * e) + Aa, a = t / (13 * e) + Ha, o = T.Y * (e <= 8 ? e / ft : Math.pow((e + 16) / 116, 3)), c = o * (9 * i) / (4 * a), u = o * (12 - 3 * i - 20 * a) / (4 * a), f = { mode: "xyz50", x: c, y: o, z: u };
+  let i = n / (13 * e) + Aa, a = t / (13 * e) + Ha, o = T.Y * (e <= 8 ? e / ft : Math.pow((e + 16) / 116, 3)), c = o * (9 * i) / (4 * a), h = o * (12 - 3 * i - 20 * a) / (4 * a), f = { mode: "xyz50", x: c, y: o, z: h };
   return r !== void 0 && (f.alpha = r), f;
 }, Ca = (e) => Rr(rn(Fe(e))), Ea = (e) => Re(an(Fr(e))), Pa = {
   mode: "lchuv",
@@ -1493,16 +1493,16 @@ const zn = {
     h: [0, 360]
   },
   interpolate: {
-    h: { use: h, fixup: G },
-    c: h,
-    l: h,
-    alpha: { use: h, fixup: L }
+    h: { use: u, fixup: W },
+    c: u,
+    l: u,
+    alpha: { use: u, fixup: L }
   },
   difference: {
     h: st
   },
   average: {
-    h: J
+    h: U
   }
 }, Ia = {
   ...ge,
@@ -1534,10 +1534,10 @@ const zn = {
     v: [-125.882, 87.243]
   },
   interpolate: {
-    l: h,
-    u: h,
-    v: h,
-    alpha: { use: h, fixup: L }
+    l: u,
+    u,
+    v: u,
+    alpha: { use: u, fixup: L }
   }
 }, Dr = ({ r: e, g: n, b: t, alpha: r }) => {
   e === void 0 && (e = 0), n === void 0 && (n = 0), t === void 0 && (t = 0);
@@ -1575,11 +1575,11 @@ function rt(e) {
   return (e * e + 0.206 * e) / (1.170873786407767 * (e + 0.03));
 }
 function Ra(e, n) {
-  let t, r, i, a, o, c, u, f;
-  -1.88170328 * e - 0.80936493 * n > 1 ? (t = 1.19086277, r = 1.76576728, i = 0.59662641, a = 0.75515197, o = 0.56771245, c = 4.0767416621, u = -3.3077115913, f = 0.2309699292) : 1.81444104 * e - 1.19445276 * n > 1 ? (t = 0.73956515, r = -0.45954404, i = 0.08285427, a = 0.1254107, o = 0.14503204, c = -1.2684380046, u = 2.6097574011, f = -0.3413193965) : (t = 1.35733652, r = -915799e-8, i = -1.1513021, a = -0.50559606, o = 692167e-8, c = -0.0041960863, u = -0.7034186147, f = 1.707614701);
+  let t, r, i, a, o, c, h, f;
+  -1.88170328 * e - 0.80936493 * n > 1 ? (t = 1.19086277, r = 1.76576728, i = 0.59662641, a = 0.75515197, o = 0.56771245, c = 4.0767416621, h = -3.3077115913, f = 0.2309699292) : 1.81444104 * e - 1.19445276 * n > 1 ? (t = 0.73956515, r = -0.45954404, i = 0.08285427, a = 0.1254107, o = 0.14503204, c = -1.2684380046, h = 2.6097574011, f = -0.3413193965) : (t = 1.35733652, r = -915799e-8, i = -1.1513021, a = -0.50559606, o = 692167e-8, c = -0.0041960863, h = -0.7034186147, f = 1.707614701);
   let b = t + r * e + i * n + a * e * e + o * e * n, m = 0.3963377774 * e + 0.2158037573 * n, v = -0.1055613458 * e - 0.0638541728 * n, w = -0.0894841775 * e - 1.291485548 * n;
   {
-    let _ = 1 + b * m, $ = 1 + b * v, N = 1 + b * w, C = _ * _ * _, H = $ * $ * $, V = N * N * N, ye = 3 * m * _ * _, Me = 3 * v * $ * $, we = 3 * w * N * N, ke = 6 * m * m * _, $e = 6 * v * v * $, ze = 6 * w * w * N, ce = c * C + u * H + f * V, ae = c * ye + u * Me + f * we, _e = c * ke + u * $e + f * ze;
+    let _ = 1 + b * m, $ = 1 + b * v, N = 1 + b * w, C = _ * _ * _, H = $ * $ * $, K = N * N * N, ye = 3 * m * _ * _, Me = 3 * v * $ * $, we = 3 * w * N * N, ke = 6 * m * m * _, $e = 6 * v * v * $, ze = 6 * w * w * N, ce = c * C + h * H + f * K, ae = c * ye + h * Me + f * we, _e = c * ke + h * $e + f * ze;
     b = b - ce * ae / (ae * ae - 0.5 * ce * _e);
   }
   return b;
@@ -1596,9 +1596,9 @@ function Fa(e, n, t, r, i, a = null) {
   else {
     o = a[1] * (i - 1) / (r * (a[0] - 1) + a[1] * (i - t));
     {
-      let c = t - i, u = r, f = 0.3963377774 * e + 0.2158037573 * n, b = -0.1055613458 * e - 0.0638541728 * n, m = -0.0894841775 * e - 1.291485548 * n, v = c + u * f, w = c + u * b, _ = c + u * m;
+      let c = t - i, h = r, f = 0.3963377774 * e + 0.2158037573 * n, b = -0.1055613458 * e - 0.0638541728 * n, m = -0.0894841775 * e - 1.291485548 * n, v = c + h * f, w = c + h * b, _ = c + h * m;
       {
-        let $ = i * (1 - o) + o * t, N = o * r, C = $ + N * f, H = $ + N * b, V = $ + N * m, ye = C * C * C, Me = H * H * H, we = V * V * V, ke = 3 * v * C * C, $e = 3 * w * H * H, ze = 3 * _ * V * V, ce = 6 * v * v * C, ae = 6 * w * w * H, _e = 6 * _ * _ * V, Sn = 4.0767416621 * ye - 3.3077115913 * Me + 0.2309699292 * we - 1, mt = 4.0767416621 * ke - 3.3077115913 * $e + 0.2309699292 * ze, Mi = 4.0767416621 * ce - 3.3077115913 * ae + 0.2309699292 * _e, An = mt / (mt * mt - 0.5 * Sn * Mi), vt = -Sn * An, Hn = -1.2684380046 * ye + 2.6097574011 * Me - 0.3413193965 * we - 1, xt = -1.2684380046 * ke + 2.6097574011 * $e - 0.3413193965 * ze, wi = -1.2684380046 * ce + 2.6097574011 * ae - 0.3413193965 * _e, Cn = xt / (xt * xt - 0.5 * Hn * wi), yt = -Hn * Cn, En = -0.0041960863 * ye - 0.7034186147 * Me + 1.707614701 * we - 1, Mt = -0.0041960863 * ke - 0.7034186147 * $e + 1.707614701 * ze, ki = -0.0041960863 * ce - 0.7034186147 * ae + 1.707614701 * _e, Pn = Mt / (Mt * Mt - 0.5 * En * ki), wt = -En * Pn;
+        let $ = i * (1 - o) + o * t, N = o * r, C = $ + N * f, H = $ + N * b, K = $ + N * m, ye = C * C * C, Me = H * H * H, we = K * K * K, ke = 3 * v * C * C, $e = 3 * w * H * H, ze = 3 * _ * K * K, ce = 6 * v * v * C, ae = 6 * w * w * H, _e = 6 * _ * _ * K, Sn = 4.0767416621 * ye - 3.3077115913 * Me + 0.2309699292 * we - 1, mt = 4.0767416621 * ke - 3.3077115913 * $e + 0.2309699292 * ze, Mi = 4.0767416621 * ce - 3.3077115913 * ae + 0.2309699292 * _e, An = mt / (mt * mt - 0.5 * Sn * Mi), vt = -Sn * An, Hn = -1.2684380046 * ye + 2.6097574011 * Me - 0.3413193965 * we - 1, xt = -1.2684380046 * ke + 2.6097574011 * $e - 0.3413193965 * ze, wi = -1.2684380046 * ce + 2.6097574011 * ae - 0.3413193965 * _e, Cn = xt / (xt * xt - 0.5 * Hn * wi), yt = -Hn * Cn, En = -0.0041960863 * ye - 0.7034186147 * Me + 1.707614701 * we - 1, Mt = -0.0041960863 * ke - 0.7034186147 * $e + 1.707614701 * ze, ki = -0.0041960863 * ce - 0.7034186147 * ae + 1.707614701 * _e, Pn = Mt / (Mt * Mt - 0.5 * En * ki), wt = -En * Pn;
         vt = An >= 0 ? vt : 1e6, yt = Cn >= 0 ? yt : 1e6, wt = Pn >= 0 ? wt : 1e6, o += Math.min(vt, Math.min(yt, wt));
       }
     }
@@ -1611,7 +1611,7 @@ function Tn(e, n, t = null) {
   return [i / r, i / (1 - r)];
 }
 function jr(e, n, t) {
-  let r = _n(n, t), i = Fa(n, t, e, 1, e, r), a = Tn(n, t, r), o = 0.11516993 + 1 / (7.4477897 + 4.1590124 * t + n * (-2.19557347 + 1.75198401 * t + n * (-2.13704948 - 10.02301043 * t + n * (-4.24894561 + 5.38770819 * t + 4.69891013 * n)))), c = 0.11239642 + 1 / (1.6132032 - 0.68124379 * t + n * (0.40370612 + 0.90148123 * t + n * (-0.27087943 + 0.6122399 * t + n * (299215e-8 - 0.45399568 * t - 0.14661872 * n)))), u = i / Math.min(e * a[0], (1 - e) * a[1]), f = e * o, b = (1 - e) * c, m = 0.9 * u * Math.sqrt(
+  let r = _n(n, t), i = Fa(n, t, e, 1, e, r), a = Tn(n, t, r), o = 0.11516993 + 1 / (7.4477897 + 4.1590124 * t + n * (-2.19557347 + 1.75198401 * t + n * (-2.13704948 - 10.02301043 * t + n * (-4.24894561 + 5.38770819 * t + 4.69891013 * n)))), c = 0.11239642 + 1 / (1.6132032 - 0.68124379 * t + n * (0.40370612 + 0.90148123 * t + n * (-0.27087943 + 0.6122399 * t + n * (299215e-8 - 0.45399568 * t - 0.14661872 * n)))), h = i / Math.min(e * a[0], (1 - e) * a[1]), f = e * o, b = (1 - e) * c, m = 0.9 * h * Math.sqrt(
     Math.sqrt(
       1 / (1 / (f * f * f * f) + 1 / (b * b * b * b))
     )
@@ -1624,12 +1624,12 @@ function Wn(e) {
   let a = Math.sqrt(t * t + r * r);
   if (!a)
     return i.s = 0, i;
-  let [o, c, u] = jr(n, t / a, r / a), f;
+  let [o, c, h] = jr(n, t / a, r / a), f;
   if (a < c) {
     let b = 0, m = 0.8 * o, v = 1 - m / c;
     f = (a - b) / (m + v * (a - b)) * 0.8;
   } else {
-    let b = c, m = 0.2 * c * c * 1.25 * 1.25 / o, v = 1 - m / (u - c);
+    let b = c, m = 0.2 * c * c * 1.25 * 1.25 / o, v = 1 - m / (h - c);
     f = 0.8 + 0.2 * ((a - b) / (m + v * (a - b)));
   }
   return f && (i.s = f, i.h = A(Math.atan2(r, t) * 180 / Math.PI)), i;
@@ -1639,8 +1639,8 @@ function Un(e) {
   const i = { mode: "oklab", l: rt(r) };
   if (e.alpha !== void 0 && (i.alpha = e.alpha), !t || r === 1)
     return i.a = i.b = 0, i;
-  let a = Math.cos(n / 180 * Math.PI), o = Math.sin(n / 180 * Math.PI), [c, u, f] = jr(i.l, a, o), b, m, v, w;
-  t < 0.8 ? (b = 1.25 * t, m = 0, v = 0.8 * c, w = 1 - v / u) : (b = 5 * (t - 0.8), m = u, v = 0.2 * u * u * 1.25 * 1.25 / c, w = 1 - v / (f - u));
+  let a = Math.cos(n / 180 * Math.PI), o = Math.sin(n / 180 * Math.PI), [c, h, f] = jr(i.l, a, o), b, m, v, w;
+  t < 0.8 ? (b = 1.25 * t, m = 0, v = 0.8 * c, w = 1 - v / h) : (b = 5 * (t - 0.8), m = h, v = 0.2 * h * h * 1.25 * 1.25 / c, w = 1 - v / (f - h));
   let _ = m + b * v / (1 - w * b);
   return i.a = _ * a, i.b = _ * o, i;
 }
@@ -1660,13 +1660,13 @@ const Xa = {
   }
 };
 function Kn(e) {
-  let n = e.l !== void 0 ? e.l : 0, t = e.a !== void 0 ? e.a : 0, r = e.b !== void 0 ? e.b : 0, i = Math.sqrt(t * t + r * r), a = i ? t / i : 1, o = i ? r / i : 1, [c, u] = Tn(a, o), f = 0.5, b = 1 - f / c, m = u / (i + n * u), v = m * n, w = m * i, _ = rt(v), $ = w * _ / v, N = Xe({ l: _, a: a * $, b: o * $ }), C = Math.cbrt(
+  let n = e.l !== void 0 ? e.l : 0, t = e.a !== void 0 ? e.a : 0, r = e.b !== void 0 ? e.b : 0, i = Math.sqrt(t * t + r * r), a = i ? t / i : 1, o = i ? r / i : 1, [c, h] = Tn(a, o), f = 0.5, b = 1 - f / c, m = h / (i + n * h), v = m * n, w = m * i, _ = rt(v), $ = w * _ / v, N = Xe({ l: _, a: a * $, b: o * $ }), C = Math.cbrt(
     1 / Math.max(N.r, N.g, N.b, 0)
   );
   n = n / C, i = i / C * on(n) / n, n = on(n);
   const H = {
     mode: "okhsv",
-    s: i ? (f + u) * w / (u * f + u * b * w) : 0,
+    s: i ? (f + h) * w / (h * f + h * b * w) : 0,
     v: n ? n / v : 0
   };
   return H.s && (H.h = A(Math.atan2(r, t) * 180 / Math.PI)), e.alpha !== void 0 && (H.alpha = e.alpha), H;
@@ -1674,7 +1674,7 @@ function Kn(e) {
 function Qn(e) {
   const n = { mode: "oklab" };
   e.alpha !== void 0 && (n.alpha = e.alpha);
-  const t = e.h !== void 0 ? e.h : 0, r = e.s !== void 0 ? e.s : 0, i = e.v !== void 0 ? e.v : 0, a = Math.cos(t / 180 * Math.PI), o = Math.sin(t / 180 * Math.PI), [c, u] = Tn(a, o), f = 0.5, b = 1 - f / c, m = 1 - r * f / (f + u - u * b * r), v = r * u * f / (f + u - u * b * r), w = rt(m), _ = v * w / m, $ = Xe({
+  const t = e.h !== void 0 ? e.h : 0, r = e.s !== void 0 ? e.s : 0, i = e.v !== void 0 ? e.v : 0, a = Math.cos(t / 180 * Math.PI), o = Math.sin(t / 180 * Math.PI), [c, h] = Tn(a, o), f = 0.5, b = 1 - f / c, m = 1 - r * f / (f + h - h * b * r), v = r * h * f / (f + h - h * b * r), w = rt(m), _ = v * w / m, $ = Xe({
     l: w,
     a: a * _,
     b: o * _
@@ -1896,14 +1896,14 @@ const Ya = {
 }, oe = 0.0037930732552754493, Zr = Math.cbrt(oe), Zt = (e) => Math.cbrt(e) - Zr, Ua = (e) => {
   const { r: n, g: t, b: r, alpha: i } = me(e), a = Zt(0.3 * n + 0.622 * t + 0.078 * r + oe), o = Zt(0.23 * n + 0.692 * t + 0.078 * r + oe), c = Zt(
     0.2434226892454782 * n + 0.2047674442449682 * t + 0.5518098665095535 * r + oe
-  ), u = {
+  ), h = {
     mode: "xyb",
     x: (a - o) / 2,
     y: (a + o) / 2,
     /* Apply default chroma from luma (subtract Y from B) */
     b: c - (a + o) / 2
   };
-  return i !== void 0 && (u.alpha = i), u;
+  return i !== void 0 && (h.alpha = i), h;
 }, Yt = (e) => Math.pow(e + Zr, 3), Ka = ({ x: e, y: n, b: t, alpha: r }) => {
   e === void 0 && (e = 0), n === void 0 && (n = 0), t === void 0 && (t = 0);
   const i = Yt(e + n) - oe, a = Yt(n - e) - oe, o = Yt(t + n) - oe, c = ve({
@@ -1929,10 +1929,10 @@ const Ya = {
     b: [-0.2778, 0.388]
   },
   interpolate: {
-    x: h,
-    y: h,
-    b: h,
-    alpha: { use: h, fixup: L }
+    x: u,
+    y: u,
+    b: u,
+    alpha: { use: u, fixup: L }
   }
 }, e0 = {
   mode: "xyz50",
@@ -1953,10 +1953,10 @@ const Ya = {
     z: [0, 0.825]
   },
   interpolate: {
-    x: h,
-    y: h,
-    z: h,
-    alpha: { use: h, fixup: L }
+    x: u,
+    y: u,
+    z: u,
+    alpha: { use: u, fixup: L }
   }
 }, t0 = (e) => {
   let { x: n, y: t, z: r, alpha: i } = e;
@@ -1997,10 +1997,10 @@ const Ya = {
   parse: ["xyz", "xyz-d65"],
   serialize: "xyz-d65",
   interpolate: {
-    x: h,
-    y: h,
-    z: h,
-    alpha: { use: h, fixup: L }
+    x: u,
+    y: u,
+    z: u,
+    alpha: { use: u, fixup: L }
   }
 }, i0 = ({ r: e, g: n, b: t, alpha: r }) => {
   e === void 0 && (e = 0), n === void 0 && (n = 0), t === void 0 && (t = 0);
@@ -2036,10 +2036,10 @@ const Ya = {
     q: [-0.522, 0.522]
   },
   interpolate: {
-    y: h,
-    i: h,
-    q: h,
-    alpha: { use: h, fixup: L }
+    y: u,
+    i: u,
+    q: u,
+    alpha: { use: u, fixup: L }
   }
 }, s0 = (e) => Math.max(0, Math.min(1, e || 0)), Bt = (e) => Math.round(s0(e) * 255), l0 = R("rgb"), c0 = (e) => {
   if (e === void 0)
@@ -2055,7 +2055,7 @@ const Ya = {
   };
   return e.alpha !== void 0 && (n.alpha = e.alpha), n;
 }, p0 = (e) => Br(Yr(e)), Gr = (e) => e !== void 0 && (e.r === void 0 || e.r >= 0 && e.r <= 1) && (e.g === void 0 || e.g >= 0 && e.g <= 1) && (e.b === void 0 || e.b >= 0 && e.b <= 1);
-function u0(e) {
+function h0(e) {
   return Gr(Yr(e));
 }
 function Jr(e = "rgb") {
@@ -2065,7 +2065,7 @@ function Jr(e = "rgb") {
   const t = R(typeof n == "string" ? n : e);
   return (r) => Gr(t(r));
 }
-function h0(e = "rgb") {
+function u0(e = "rgb") {
   const { gamut: n } = at(e);
   if (!n)
     return (a) => Ue(a);
@@ -2077,22 +2077,22 @@ function h0(e = "rgb") {
     const c = r(o);
     if (i(c))
       return o;
-    const u = Br(c);
-    return o.mode === u.mode ? u : R(o.mode)(u);
+    const h = Br(c);
+    return o.mode === h.mode ? h : R(o.mode)(h);
   };
 }
 function f0(e, n = "lch", t = "rgb") {
   e = Ue(e);
-  let r = t === "rgb" ? u0 : Jr(t), i = t === "rgb" ? p0 : h0(t);
+  let r = t === "rgb" ? h0 : Jr(t), i = t === "rgb" ? p0 : u0(t);
   if (e === void 0 || r(e)) return e;
   let a = R(e.mode);
   e = R(n)(e);
   let o = { ...e, c: 0 };
   if (!r(o))
     return a(i(o));
-  let c = 0, u = e.c !== void 0 ? e.c : 0, f = at(n).ranges.c, b = (f[1] - f[0]) / Math.pow(2, 13), m = o.c;
-  for (; u - c > b; )
-    o.c = c + (u - c) * 0.5, r(o) ? (m = o.c, c = o.c) : u = o.c;
+  let c = 0, h = e.c !== void 0 ? e.c : 0, f = at(n).ranges.c, b = (f[1] - f[0]) / Math.pow(2, 13), m = o.c;
+  for (; h - c > b; )
+    o.c = c + (h - c) * 0.5, r(o) ? (m = o.c, c = o.c) : h = o.c;
   return a(
     r(o) ? o : { ...o, c: m }
   );
@@ -2133,9 +2133,9 @@ function g0(e, n) {
   if (!t) return;
   const { width: r, height: i } = e, a = t.createImageData(r, i), o = a.data;
   for (let c = 0; c < i; c++) {
-    const u = 1 - c / (i - 1 || 1);
+    const h = 1 - c / (i - 1 || 1);
     for (let f = 0; f < r; f++) {
-      const b = f / (r - 1 || 1), m = b0({ mode: "hsv", h: n, s: b, v: u, alpha: 1 }), v = (c * r + f) * 4;
+      const b = f / (r - 1 || 1), m = b0({ mode: "hsv", h: n, s: b, v: h, alpha: 1 }), v = (c * r + f) * 4;
       if (!m) {
         o[v] = o[v + 1] = o[v + 2] = 0, o[v + 3] = 255;
         continue;
@@ -2382,11 +2382,11 @@ function H0(e, n, t, r) {
     b: Math.round(i * e.b + (1 - i) * a.b)
   };
 }
-function ur(e, n) {
+function hr(e, n) {
   const t = n.getBoundingClientRect(), r = fr((e.clientX - t.left) / t.width), i = fr((e.clientY - t.top) / t.height);
   return { x: r, y: i };
 }
-function hr(e, n) {
+function ur(e, n) {
   let t = !1;
   const r = (o) => {
     !t || o.movementX === 0 || n.onDelta(o.movementX, o);
@@ -2410,23 +2410,23 @@ function hr(e, n) {
 }
 function Kt(e, n, t, r) {
   let i = !1;
-  const a = (u) => {
+  const a = (h) => {
     if (!i) return;
-    const { x: f, y: b } = ur(u, e);
+    const { x: f, y: b } = hr(h, e);
     n(f, b);
-  }, o = (u) => {
+  }, o = (h) => {
     if (i) {
-      if (i = !1, (u == null ? void 0 : u.pointerId) != null)
+      if (i = !1, (h == null ? void 0 : h.pointerId) != null)
         try {
-          e.releasePointerCapture(u.pointerId);
+          e.releasePointerCapture(h.pointerId);
         } catch {
         }
       window.removeEventListener("pointermove", a), window.removeEventListener("pointerup", o), window.removeEventListener("pointercancel", o), t == null || t();
     }
-  }, c = (u) => {
-    if (u.button !== 0) return;
-    i = !0, e.setPointerCapture(u.pointerId), r == null || r();
-    const { x: f, y: b } = ur(u, e);
+  }, c = (h) => {
+    if (h.button !== 0) return;
+    i = !0, e.setPointerCapture(h.pointerId), r == null || r();
+    const { x: f, y: b } = hr(h, e);
     n(f, b), window.addEventListener("pointermove", a), window.addEventListener("pointerup", o), window.addEventListener("pointercancel", o);
   };
   return e.addEventListener("pointerdown", c), () => {
@@ -2443,7 +2443,7 @@ function C0(e, n) {
     r.preventDefault();
     const a = n.getBoundingClientRect(), o = r.clientX - a.left, c = r.clientY - a.top;
     e.dataset.dragging = "true", e.setPointerCapture(r.pointerId);
-    const u = (b) => {
+    const h = (b) => {
       Kr(n, b.clientX - o, b.clientY - c);
     }, f = (b) => {
       e.removeAttribute("data-dragging");
@@ -2451,9 +2451,9 @@ function C0(e, n) {
         e.releasePointerCapture(b.pointerId);
       } catch {
       }
-      window.removeEventListener("pointermove", u), window.removeEventListener("pointerup", f), window.removeEventListener("pointercancel", f);
+      window.removeEventListener("pointermove", h), window.removeEventListener("pointerup", f), window.removeEventListener("pointercancel", f);
     };
-    window.addEventListener("pointermove", u), window.addEventListener("pointerup", f), window.addEventListener("pointercancel", f);
+    window.addEventListener("pointermove", h), window.addEventListener("pointerup", f), window.addEventListener("pointercancel", f);
   };
   return e.addEventListener("pointerdown", t), () => {
     e.removeEventListener("pointerdown", t), e.removeAttribute("data-dragging");
@@ -2468,8 +2468,8 @@ function E0(e) {
   );
 }
 function Kr(e, n, t) {
-  const r = e.offsetWidth, i = e.offsetHeight, a = window.innerWidth - Ze, o = window.innerHeight - Ze, c = Ze - r, u = Ze - i;
-  e.style.left = `${Math.min(a, Math.max(c, n))}px`, e.style.top = `${Math.min(o, Math.max(u, t))}px`;
+  const r = e.offsetWidth, i = e.offsetHeight, a = window.innerWidth - Ze, o = window.innerHeight - Ze, c = Ze - r, h = Ze - i;
+  e.style.left = `${Math.min(a, Math.max(c, n))}px`, e.style.top = `${Math.min(o, Math.max(h, t))}px`;
 }
 const P0 = ["hex", "rgb", "hsl", "oklch"], I0 = {
   hex: "HEX",
@@ -2477,7 +2477,7 @@ const P0 = ["hex", "rgb", "hsl", "oklch"], I0 = {
   hsl: "HSL",
   oklch: "OKLCH"
 };
-var z, x, E, K, ue, P, Ee, Pe, Q, j, I, Z, Ie, q, he, Y, qe, X, ee, fe, te, B, s, Qr, ei, ti, sn, ln, W, cn, ni, Ye, dn, ri, ii, pn, ai, Be, Le, oi, si, li, ci, un, hn, di, pi, ui, hi, fi, bi, gi, D, Ne, fn, bn, Ge, gn, mn, mi, vi, vn, xi, Je, Ve, xn, We, U, yi;
+var z, x, E, Y, he, P, Ee, Pe, Q, B, I, G, Ie, q, ue, J, qe, X, ee, fe, te, V, s, Qr, ei, ti, sn, ln, D, cn, ni, Ye, dn, ri, ii, pn, ai, Be, Le, oi, si, li, ci, hn, un, di, pi, hi, ui, fi, bi, gi, j, Ne, fn, bn, Ge, gn, mn, mi, vi, vn, xi, Je, Ve, xn, We, Z, yi;
 class q0 extends HTMLElement {
   constructor() {
     super();
@@ -2485,32 +2485,32 @@ class q0 extends HTMLElement {
     k(this, z);
     k(this, x, { ...$0 });
     k(this, E, "hsl");
-    k(this, K, z0());
-    k(this, ue, null);
+    k(this, Y, z0());
+    k(this, he, null);
     k(this, P, []);
     k(this, Ee);
     k(this, Pe);
     k(this, Q);
-    k(this, j);
+    k(this, B);
     k(this, I);
-    k(this, Z);
+    k(this, G);
     k(this, Ie);
     k(this, q);
-    k(this, he);
-    k(this, Y);
+    k(this, ue);
+    k(this, J);
     k(this, qe);
     k(this, X);
     k(this, ee);
     k(this, fe);
     k(this, te, null);
-    k(this, B, null);
+    k(this, V, null);
     M(this, z, this.attachShadow({ mode: "open" }));
   }
   static get observedAttributes() {
     return ["value", "theme", "header-action", "movable", "history"];
   }
   connectedCallback() {
-    d(this, s, ei).call(this), d(this, s, ti).call(this), d(this, s, Qr).call(this), d(this, s, Ne).call(this);
+    d(this, s, ei).call(this), d(this, s, ti).call(this), d(this, s, Qr).call(this), d(this, s, Ne).call(this, !1);
   }
   disconnectedCallback() {
     l(this, P).forEach((t) => t()), M(this, P, []);
@@ -2566,7 +2566,7 @@ class q0 extends HTMLElement {
     t ? this.removeAttribute("history") : this.setAttribute("history", "false");
   }
 }
-z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), K = new WeakMap(), ue = new WeakMap(), P = new WeakMap(), Ee = new WeakMap(), Pe = new WeakMap(), Q = new WeakMap(), j = new WeakMap(), I = new WeakMap(), Z = new WeakMap(), Ie = new WeakMap(), q = new WeakMap(), he = new WeakMap(), Y = new WeakMap(), qe = new WeakMap(), X = new WeakMap(), ee = new WeakMap(), fe = new WeakMap(), te = new WeakMap(), B = new WeakMap(), s = new WeakSet(), Qr = function() {
+z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), Y = new WeakMap(), he = new WeakMap(), P = new WeakMap(), Ee = new WeakMap(), Pe = new WeakMap(), Q = new WeakMap(), B = new WeakMap(), I = new WeakMap(), G = new WeakMap(), Ie = new WeakMap(), q = new WeakMap(), ue = new WeakMap(), J = new WeakMap(), qe = new WeakMap(), X = new WeakMap(), ee = new WeakMap(), fe = new WeakMap(), te = new WeakMap(), V = new WeakMap(), s = new WeakSet(), Qr = function() {
   const t = this.getAttribute("value");
   if (t) {
     const r = pe(t);
@@ -2625,7 +2625,7 @@ z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), K = new WeakMap(), ue =
           <div class="pcp-history"></div>
         </div>
       </div>
-    `, M(this, Ee, l(this, z).querySelector(".pcp-plane")), M(this, Pe, l(this, z).querySelector(".pcp-plane-wrap")), M(this, Q, l(this, z).querySelector(".pcp-cursor")), M(this, j, l(this, z).querySelector(".pcp-hue-row")), M(this, I, l(this, j).querySelector(".pcp-slider-handle")), M(this, Z, l(this, z).querySelector(".pcp-alpha-row")), M(this, Ie, l(this, z).querySelector(".pcp-slider-fill-alpha")), M(this, q, l(this, Z).querySelector(".pcp-slider-handle")), M(this, he, l(this, z).querySelector(".pcp-tabs-pill")), M(this, Y, l(this, z).querySelector(".pcp-fields")), M(this, qe, l(this, z).querySelector(".pcp-swatch-fill")), M(this, X, l(this, z).querySelector(".pcp-alpha-input")), M(this, fe, l(this, z).querySelector(".pcp-history-section")), M(this, ee, l(this, z).querySelector(".pcp-history")), M(this, te, l(this, z).querySelector(".pcp-theme-toggle")), d(this, s, Ye).call(this);
+    `, M(this, Ee, l(this, z).querySelector(".pcp-plane")), M(this, Pe, l(this, z).querySelector(".pcp-plane-wrap")), M(this, Q, l(this, z).querySelector(".pcp-cursor")), M(this, B, l(this, z).querySelector(".pcp-hue-row")), M(this, I, l(this, B).querySelector(".pcp-slider-handle")), M(this, G, l(this, z).querySelector(".pcp-alpha-row")), M(this, Ie, l(this, z).querySelector(".pcp-slider-fill-alpha")), M(this, q, l(this, G).querySelector(".pcp-slider-handle")), M(this, ue, l(this, z).querySelector(".pcp-tabs-pill")), M(this, J, l(this, z).querySelector(".pcp-fields")), M(this, qe, l(this, z).querySelector(".pcp-swatch-fill")), M(this, X, l(this, z).querySelector(".pcp-alpha-input")), M(this, fe, l(this, z).querySelector(".pcp-history-section")), M(this, ee, l(this, z).querySelector(".pcp-history")), M(this, te, l(this, z).querySelector(".pcp-theme-toggle")), d(this, s, Ye).call(this);
 }, ti = function() {
   var r;
   const t = l(this, z).querySelector(".pcp-close");
@@ -2635,37 +2635,41 @@ z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), K = new WeakMap(), ue =
     Kt(
       l(this, Pe),
       (i, a) => d(this, s, oi).call(this, i, a),
-      () => d(this, s, U).call(this),
-      () => d(this, s, W).call(this)
+      () => d(this, s, Z).call(this),
+      () => d(this, s, D).call(this)
     )
   ), l(this, P).push(
     Kt(
-      l(this, j),
+      l(this, B),
       (i) => d(this, s, si).call(this, i),
-      () => d(this, s, U).call(this),
-      () => d(this, s, W).call(this)
+      () => d(this, s, Z).call(this),
+      () => d(this, s, D).call(this)
     )
   ), l(this, P).push(
     Kt(
-      l(this, Z),
+      l(this, G),
       (i) => d(this, s, li).call(this, i),
-      () => d(this, s, U).call(this),
-      () => d(this, s, W).call(this)
+      () => d(this, s, Z).call(this),
+      () => d(this, s, D).call(this)
     )
-  ), l(this, P).push(d(this, s, dn).call(this, l(this, j))), l(this, P).push(d(this, s, dn).call(this, l(this, Z))), l(this, z).querySelectorAll(".pcp-tab").forEach((i) => {
+  ), l(this, P).push(d(this, s, dn).call(this, l(this, B))), l(this, P).push(d(this, s, dn).call(this, l(this, G))), l(this, z).querySelectorAll(".pcp-tab").forEach((i) => {
     i.addEventListener("click", () => {
       const a = i.dataset.format;
       a && a !== l(this, E) && (M(this, E, a), d(this, s, Ge).call(this), d(this, s, xn).call(this), d(this, s, Ve).call(this), d(this, s, gn).call(this));
     });
-  }), l(this, X).addEventListener("focus", () => d(this, s, W).call(this)), l(this, X).addEventListener("change", () => d(this, s, un).call(this)), l(this, X).addEventListener("keydown", (i) => {
-    i.key === "Enter" && d(this, s, un).call(this);
+  }), l(this, X).addEventListener("focus", () => d(this, s, D).call(this)), l(this, X).addEventListener("change", () => d(this, s, hn).call(this)), l(this, X).addEventListener("keydown", (i) => {
+    i.key === "Enter" && d(this, s, hn).call(this);
   }), l(this, P).push(d(this, s, bi).call(this)), d(this, s, ln).call(this), d(this, s, sn).call(this);
 }, sn = function() {
-  this.history ? (l(this, fe).hidden = !1, d(this, s, We).call(this)) : (l(this, fe).hidden = !0, l(this, ee).innerHTML = "");
+  if (!this.history) {
+    l(this, fe).hidden = !0, l(this, ee).innerHTML = "";
+    return;
+  }
+  d(this, s, We).call(this);
 }, ln = function() {
-  if (l(this, B)) {
-    const r = l(this, P).indexOf(l(this, B));
-    r >= 0 && l(this, P).splice(r, 1), l(this, B).call(this), M(this, B, null);
+  if (l(this, V)) {
+    const r = l(this, P).indexOf(l(this, V));
+    r >= 0 && l(this, P).splice(r, 1), l(this, V).call(this), M(this, V, null);
   }
   if (!this.movable) {
     this.style.position = "", this.style.left = "", this.style.top = "", this.style.zIndex = "", this.removeAttribute("data-positioned");
@@ -2675,9 +2679,9 @@ z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), K = new WeakMap(), ue =
     E0(this), this.setAttribute("data-positioned", "");
   });
   const t = l(this, z).querySelector(".pcp-header");
-  t && (M(this, B, C0(t, this)), l(this, P).push(l(this, B)));
-}, W = function() {
-  M(this, ue, { ...l(this, x) });
+  t && (M(this, V, C0(t, this)), l(this, P).push(l(this, V)));
+}, D = function() {
+  M(this, he, { ...l(this, x) });
 }, cn = function() {
   return this.theme === "light" ? "light" : this.theme === "dark" || window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }, ni = function() {
@@ -2729,24 +2733,24 @@ z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), K = new WeakMap(), ue =
 }, oi = function(t, r) {
   l(this, Q).dataset.dragging = "true";
   const i = d(this, s, bn).call(this);
-  d(this, s, D).call(this, k0(t, r, i, l(this, x).alpha), !0), d(this, s, mn).call(this, t, r);
+  d(this, s, j).call(this, k0(t, r, i, l(this, x).alpha), !0), d(this, s, mn).call(this, t, r);
 }, si = function(t) {
-  l(this, j).dataset.active = "true", l(this, I).dataset.dragging = "true", d(this, s, Le).call(this, l(this, I), t, "hue");
+  l(this, B).dataset.active = "true", l(this, I).dataset.dragging = "true", d(this, s, Le).call(this, l(this, I), t, "hue");
   const r = t * 360;
-  d(this, s, D).call(this, y0(l(this, x), r), !0);
+  d(this, s, j).call(this, y0(l(this, x), r), !0);
 }, li = function(t) {
-  l(this, Z).dataset.active = "true", l(this, q).dataset.dragging = "true", d(this, s, D).call(this, F({ ...l(this, x), alpha: t }), !0), d(this, s, Le).call(this, l(this, q), t, "alpha");
+  l(this, G).dataset.active = "true", l(this, q).dataset.dragging = "true", d(this, s, j).call(this, F({ ...l(this, x), alpha: t }), !0), d(this, s, Le).call(this, l(this, q), t, "alpha");
 }, ci = function() {
   const r = l(this, I).style.left.match(/calc\(([\d.]+)%/);
   return r ? parseFloat(r[1]) / 100 * 360 : Jt(l(this, x));
-}, un = function() {
+}, hn = function() {
   const t = l(this, X).value.replace(/%/g, "").trim(), r = Number(t);
   if (Number.isNaN(r)) {
     d(this, s, Je).call(this);
     return;
   }
-  d(this, s, D).call(this, F({ ...l(this, x), alpha: r / 100 }), !0), d(this, s, U).call(this);
-}, hn = function(t, r) {
+  d(this, s, j).call(this, F({ ...l(this, x), alpha: r / 100 }), !0), d(this, s, Z).call(this);
+}, un = function(t, r) {
   d(this, s, di).call(this, { [t]: r }, !0);
 }, di = function(t, r = !0) {
   const i = {};
@@ -2754,26 +2758,26 @@ z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), K = new WeakMap(), ue =
     i[o.key] = t[o.key] ?? o.value;
   });
   const a = cr(l(this, E), i, l(this, x));
-  a && (d(this, s, D).call(this, a, !0), r && d(this, s, U).call(this));
+  a && (d(this, s, j).call(this, a, !0), r && d(this, s, Z).call(this));
 }, pi = function(t, r) {
   const i = t.min ?? 0, o = (t.max ?? 100) - i, c = t.step != null && t.step < 1 ? o / 120 : t.step ?? 1;
   return r ? c * 0.1 : c;
-}, ui = function(t, r) {
+}, hi = function(t, r) {
   return t.step != null && t.step < 1 ? r.toFixed(3) : String(Math.round(r));
-}, hi = function(t, r, i, a) {
+}, ui = function(t, r, i, a) {
   const o = je(l(this, x), l(this, E)).find(($) => $.key === t);
   if (!o) return;
-  const c = r.min ?? 0, u = r.max ?? 100, f = d(this, s, pi).call(this, r, a);
+  const c = r.min ?? 0, h = r.max ?? 100, f = d(this, s, pi).call(this, r, a);
   let b = Number(o.value) + i * f;
-  r.step != null && r.step < 1 ? (b = Math.round(b / r.step) * r.step, b = Math.min(u, Math.max(c, b))) : b = Math.min(u, Math.max(c, Math.round(b)));
-  const m = d(this, s, ui).call(this, r, b), v = {};
+  r.step != null && r.step < 1 ? (b = Math.round(b / r.step) * r.step, b = Math.min(h, Math.max(c, b))) : b = Math.min(h, Math.max(c, Math.round(b)));
+  const m = d(this, s, hi).call(this, r, b), v = {};
   je(l(this, x), l(this, E)).forEach(($) => {
     v[$.key] = $.key === t ? m : $.value;
   });
   const w = cr(l(this, E), v, l(this, x));
   if (!w) return;
-  d(this, s, D).call(this, w, !0, { refreshFields: !1 });
-  const _ = l(this, Y).querySelector(
+  d(this, s, j).call(this, w, !0, { refreshFields: !1 });
+  const _ = l(this, J).querySelector(
     `.pcp-field-input[data-key="${t}"]`
   );
   _ && (_.value = m);
@@ -2782,38 +2786,38 @@ z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), K = new WeakMap(), ue =
   let a = l(this, x).alpha * 100 + t * i;
   a = Math.min(100, Math.max(0, r ? a : Math.round(a)));
   const o = a / 100;
-  d(this, s, D).call(this, F({ ...l(this, x), alpha: o }), !0, { refreshFields: !1 }), l(this, X).value = `${Math.round(a)}%`;
+  d(this, s, j).call(this, F({ ...l(this, x), alpha: o }), !0, { refreshFields: !1 }), l(this, X).value = `${Math.round(a)}%`;
 }, bi = function() {
   const t = l(this, z).querySelector(".pcp-alpha-field .pcp-field-label");
-  return t ? hr(t, {
+  return t ? ur(t, {
     onStart: () => {
-      d(this, s, W).call(this), t.setAttribute("data-scrubbing", "true"), document.body.style.cursor = "ew-resize";
+      d(this, s, D).call(this), t.setAttribute("data-scrubbing", "true"), document.body.style.cursor = "ew-resize";
     },
     onDelta: (r, i) => d(this, s, fi).call(this, r, i.shiftKey),
     onEnd: () => {
-      t.removeAttribute("data-scrubbing"), document.body.style.cursor = "", d(this, s, U).call(this), d(this, s, Je).call(this);
+      t.removeAttribute("data-scrubbing"), document.body.style.cursor = "", d(this, s, Z).call(this), d(this, s, Je).call(this);
     }
   }) : () => {
   };
 }, gi = function(t) {
-  l(this, E) !== "hex" && l(this, Y).querySelectorAll(".pcp-field-label").forEach((r) => {
+  l(this, E) !== "hex" && l(this, J).querySelectorAll(".pcp-field-label").forEach((r) => {
     var c;
     const i = r.closest(".pcp-field");
     if (!i) return;
-    const a = (c = [...i.classList].find((u) => u.startsWith("pcp-field-") && u !== "pcp-field")) == null ? void 0 : c.slice(10);
+    const a = (c = [...i.classList].find((h) => h.startsWith("pcp-field-") && h !== "pcp-field")) == null ? void 0 : c.slice(10);
     if (!a) return;
-    const o = t.find((u) => u.key === a);
-    !o || o.min == null || o.max == null || hr(r, {
+    const o = t.find((h) => h.key === a);
+    !o || o.min == null || o.max == null || ur(r, {
       onStart: () => {
-        d(this, s, W).call(this), r.setAttribute("data-scrubbing", "true"), document.body.style.cursor = "ew-resize";
+        d(this, s, D).call(this), r.setAttribute("data-scrubbing", "true"), document.body.style.cursor = "ew-resize";
       },
-      onDelta: (u, f) => d(this, s, hi).call(this, a, o, u, f.shiftKey),
+      onDelta: (h, f) => d(this, s, ui).call(this, a, o, h, f.shiftKey),
       onEnd: () => {
-        r.removeAttribute("data-scrubbing"), document.body.style.cursor = "", d(this, s, U).call(this), d(this, s, Ve).call(this);
+        r.removeAttribute("data-scrubbing"), document.body.style.cursor = "", d(this, s, Z).call(this), d(this, s, Ve).call(this);
       }
     });
   });
-}, D = function(t, r = !0, i) {
+}, j = function(t, r = !0, i) {
   M(this, x, F(t)), d(this, s, fn).call(this, r, i);
 }, Ne = function(t = !0) {
   d(this, s, Ge).call(this), d(this, s, xn).call(this), d(this, s, fn).call(this, t), d(this, s, We).call(this);
@@ -2844,7 +2848,7 @@ z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), K = new WeakMap(), ue =
   l(this, X).value = `${Math.round(l(this, x).alpha * 100)}%`;
 }, Ve = function() {
   const t = je(l(this, x), l(this, E));
-  l(this, Y).dataset.format = l(this, E), l(this, Y).innerHTML = t.map(
+  l(this, J).dataset.format = l(this, E), l(this, J).innerHTML = t.map(
     (r) => `
         <div class="pcp-field pcp-field-${r.key}">
           <span class="pcp-field-label">${r.label}</span>
@@ -2857,10 +2861,10 @@ z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), K = new WeakMap(), ue =
           />
         </div>
       `
-  ).join(""), l(this, Y).querySelectorAll(".pcp-field-input").forEach((r) => {
+  ).join(""), l(this, J).querySelectorAll(".pcp-field-input").forEach((r) => {
     const i = r, a = i.dataset.key;
-    i.addEventListener("focus", () => d(this, s, W).call(this)), i.addEventListener("change", () => d(this, s, hn).call(this, a, i.value)), i.addEventListener("keydown", (o) => {
-      o.key === "Enter" && d(this, s, hn).call(this, a, i.value);
+    i.addEventListener("focus", () => d(this, s, D).call(this)), i.addEventListener("change", () => d(this, s, un).call(this, a, i.value)), i.addEventListener("keydown", (o) => {
+      o.key === "Enter" && d(this, s, un).call(this, a, i.value);
     });
   }), d(this, s, gi).call(this, t), d(this, s, Je).call(this);
 }, xn = function() {
@@ -2871,26 +2875,26 @@ z = new WeakMap(), x = new WeakMap(), E = new WeakMap(), K = new WeakMap(), ue =
     i.setAttribute("data-active", String(a)), i.setAttribute("aria-selected", String(a)), a && (r = i);
   }), r) {
     const i = r, a = i.offsetLeft, o = i.offsetWidth;
-    l(this, he).style.left = `${a}px`, l(this, he).style.width = `${o}px`;
+    l(this, ue).style.left = `${a}px`, l(this, ue).style.width = `${o}px`;
   }
 }, We = function() {
-  this.history && (l(this, ee).innerHTML = l(this, K).map((t, r) => `
+  this.history && (l(this, fe).hidden = l(this, Y).length === 0, l(this, ee).innerHTML = l(this, Y).map((t, r) => `
           <button type="button" class="pcp-history-swatch pcp-clip" data-index="${r}" aria-label="Color ${He(t)}">
             <span class="pcp-swatch-fill" data-history-fill="${r}"></span>
           </button>
         `).join(""), l(this, ee).querySelectorAll("[data-history-fill]").forEach((t) => {
-    const r = Number(t.dataset.historyFill), i = l(this, K)[r];
+    const r = Number(t.dataset.historyFill), i = l(this, Y)[r];
     i && d(this, s, vn).call(this, t, i);
   }), l(this, ee).querySelectorAll(".pcp-history-swatch").forEach((t) => {
     t.addEventListener("click", () => {
-      const r = Number(t.dataset.index), i = l(this, K)[r];
-      i && d(this, s, D).call(this, { ...i }, !0, { refreshFields: !0 });
+      const r = Number(t.dataset.index), i = l(this, Y)[r];
+      i && (d(this, s, D).call(this), d(this, s, j).call(this, { ...i }, !0, { refreshFields: !0 }), d(this, s, Z).call(this));
     });
   }));
-}, U = function() {
-  delete l(this, Q).dataset.dragging, delete l(this, I).dataset.dragging, delete l(this, q).dataset.dragging, delete l(this, j).dataset.active, delete l(this, Z).dataset.active;
-  const t = l(this, ue);
-  M(this, ue, null), this.history && t && !Ur(t, l(this, x)) && (M(this, K, _0(t, l(this, K))), d(this, s, We).call(this));
+}, Z = function() {
+  delete l(this, Q).dataset.dragging, delete l(this, I).dataset.dragging, delete l(this, q).dataset.dragging, delete l(this, B).dataset.active, delete l(this, G).dataset.active;
+  const t = l(this, he);
+  M(this, he, null), this.history && t && !Ur(t, l(this, x)) && (M(this, Y, _0(t, l(this, Y))), d(this, s, We).call(this));
 }, yi = function() {
   const t = {
     color: { ...l(this, x) },

@@ -86,7 +86,7 @@ export class PrettyColorPicker extends HTMLElement {
     this.#render()
     this.#bind()
     this.#applyValueAttribute()
-    this.#refreshAll()
+    this.#refreshAll(false)
   }
 
   disconnectedCallback(): void {
@@ -778,7 +778,11 @@ export class PrettyColorPicker extends HTMLElement {
       btn.addEventListener('click', () => {
         const index = Number((btn as HTMLElement).dataset.index)
         const item = this.#history[index]
-        if (item) this.#setColor({ ...item }, true, { refreshFields: true })
+        if (item) {
+          this.#captureEditStart()
+          this.#setColor({ ...item }, true, { refreshFields: true })
+          this.#commitHistory()
+        }
       })
     })
   }
