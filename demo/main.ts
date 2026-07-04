@@ -1,13 +1,12 @@
 import '../src/pretty-color-picker'
-import { oklchToHex, oklchToRgbString } from '../src/color/conversions'
+import { oklchToRgbString } from '../src/color/conversions'
 import type { ColorChangeDetail } from '../src/types'
 import type { PrettyColorPicker } from '../src/pretty-color-picker'
 
 const DEMO_COLOR_DARK = '#FFF4ED'
 const DEMO_COLOR_LIGHT = '#0C1615'
 
-const picker = document.querySelector('#color-picker') as PrettyColorPicker
-const preview = document.querySelector('#color-preview') as HTMLElement
+const picker = document.querySelector('pretty-color-picker') as PrettyColorPicker
 
 function resolvedPickerTheme(): 'dark' | 'light' {
   if (picker.theme === 'light') return 'light'
@@ -21,7 +20,6 @@ function defaultDemoColor(theme: 'dark' | 'light'): string {
 
 function applyPageBackground(color: string): void {
   document.body.style.background = color
-  preview.style.setProperty('--demo-color', color)
 }
 
 function applyDemoDefaults(): void {
@@ -48,10 +46,6 @@ function schedulePageBackground(color: string): void {
 picker.addEventListener('change', (event) => {
   const detail = (event as CustomEvent<ColorChangeDetail>).detail
   schedulePageBackground(oklchToRgbString(detail.color))
-})
-
-picker.addEventListener('close', () => {
-  applyPageBackground(oklchToHex(picker.color))
 })
 
 picker.addEventListener('themechange', () => {
