@@ -125,7 +125,7 @@ export function formatFieldsFor(color: OklchColor, format: ColorFormat): FormatF
     case 'hsl': {
       const hsl = toHsl({ mode: 'oklch', ...color })
       return [
-        { key: 'h', label: 'H', value: String(Math.round(hsl?.h ?? 0)), min: 0, max: 360, scrubStep: 3 },
+        { key: 'h', label: 'H', value: String(Math.round(hsl?.h ?? 0)), min: 0, max: 360 },
         {
           key: 's',
           label: 'S',
