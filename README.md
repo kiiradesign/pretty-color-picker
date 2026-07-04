@@ -4,7 +4,7 @@ A perceptually accurate color picker for the modern web. Colors live in **OKLCH*
 
 Native **Web Component**. Works in any framework or plain HTML.
 
-**[Live demo](https://colors.kiira.in)** · **[npm](https://www.npmjs.com/package/pretty-color-picker)** · **[GitHub](https://github.com/kiiradesign/pretty-color-picker)**
+**[Live demo](https://colors.kiira.in)** · **[npm](https://www.npmjs.com/package/pretty-color-picker)**
 
 ![Pretty Color Picker demo](./docs/pcp.gif)
 
