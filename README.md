@@ -1,10 +1,10 @@
 # Pretty Color Picker
 
-A perceptually accurate color picker for the modern web. Colors are stored internally as **OKLCH** (`picker.color`); Hex, RGB, HSL, and OKLCH are edit/display formats. The 2D plane is a classic **saturation × value** slice at the current hue (the layout every color picker uses), not an OKLCH chroma × lightness plane.
+A perceptually accurate color picker for the modern web. Colors live in **OKLCH** (`picker.color`); Hex, RGB, HSL, and OKLCH are there for editing and display. The plane is **saturation × value** at the current hue.
 
 Native **Web Component**. Works in any framework or plain HTML.
 
-**[Live demo](https://colors.kiira.in)** · **[GitHub](https://github.com/kiiradesign/pretty-color-picker)**
+**[Live demo](https://colors.kiira.in)** · **[npm](https://www.npmjs.com/package/pretty-color-picker)** · **[GitHub](https://github.com/kiiradesign/pretty-color-picker)**
 
 The design and interactions are inspired by [DialKit](https://joshpuckett.me/dialkit). I'm considering contributing this component upstream.
 
@@ -13,6 +13,8 @@ The design and interactions are inspired by [DialKit](https://joshpuckett.me/dia
 Saturation × value color plane with hue and alpha sliders, format tabs (Hex / RGB / HSL / OKLCH), Last Used history, label scrubbing, **popover** mode (anchored to a trigger), draggable panel header, light / dark / system themes, Shadow DOM.
 
 ## Install
+
+Published on npm as [`pretty-color-picker`](https://www.npmjs.com/package/pretty-color-picker) (v0.1.0).
 
 ```bash
 npm install pretty-color-picker
