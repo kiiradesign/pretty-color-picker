@@ -6,6 +6,8 @@ Native **Web Component**. Works in any framework or plain HTML.
 
 **[Live demo](https://colors.kiira.in)** · **[npm](https://www.npmjs.com/package/pretty-color-picker)** · **[GitHub](https://github.com/kiiradesign/pretty-color-picker)**
 
+![Pretty Color Picker demo](./docs/pcp.gif)
+
 The design and interactions are inspired by [DialKit](https://joshpuckett.me/dialkit). I'm considering contributing this component upstream.
 
 ## Features
@@ -14,11 +16,13 @@ Saturation × value color plane with hue and alpha sliders, format tabs (Hex / R
 
 ## Install
 
-Published on npm as [`pretty-color-picker`](https://www.npmjs.com/package/pretty-color-picker) (v0.1.3).
+Published on npm as `[pretty-color-picker](https://www.npmjs.com/package/pretty-color-picker)` (v0.1.3).
 
 ```bash
 npm install pretty-color-picker
 ```
+
+
 
 ## Usage
 
@@ -49,16 +53,16 @@ import 'pretty-color-picker'
 ```
 
 
-| Attribute       | Values                      | Description                                      |
-| --------------- | --------------------------- | ------------------------------------------------ |
-| `value`         | CSS color                   | Initial color                                    |
-| `label`         | string                      | Panel header title (default: `Pretty Color Picker`; `label=""` hides it) |
-| `theme`         | `light` \| `dark` \| `system` | Chrome theme                                     |
-| `header-action` | `close` \| `theme` \| `none` | Close button, theme toggle, or no header button |
-| `mode`          | `inline` \| `popover`       | `popover` = floating panel anchored to `anchor` |
-| `anchor`        | CSS selector                | Trigger for popover mode (e.g. `#color-btn`)     |
-| `open`          | present when visible        | Popover visibility (also `show()` / `hide()`)    |
-| `movable`       | present to enable           | Draggable header (enabled by default in popover mode) |
+| Attribute       | Values                      | Description                                                                      |
+| --------------- | --------------------------- | -------------------------------------------------------------------------------- |
+| `value`         | CSS color                   | Initial color                                                                    |
+| `label`         | string                      | Panel header title (default: `Pretty Color Picker`; `label=""` hides it)         |
+| `theme`         | `light` | `dark` | `system` | Chrome theme                                                                     |
+| `header-action` | `close` | `theme` | `none`  | Close button, theme toggle, or no header button                                  |
+| `mode`          | `inline` | `popover`        | `popover` = floating panel anchored to `anchor`                                  |
+| `anchor`        | CSS selector                | Trigger for popover mode (e.g. `#color-btn`)                                     |
+| `open`          | present when visible        | Popover visibility (also `show()` / `hide()`)                                    |
+| `movable`       | present to enable           | Draggable header (enabled by default in popover mode)                            |
 | `history`       | `false` to hide             | Last Used swatch grid (on by default; hidden until the first color is committed) |
 
 
