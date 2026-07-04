@@ -17,15 +17,20 @@ export function bindHorizontalScrub(
   },
 ): () => void {
   let active = false
+  let lastClientX: number | null = null
 
   const handleMove = (event: PointerEvent) => {
-    if (!active || event.movementX === 0) return
-    callbacks.onDelta(event.movementX, event)
+    if (!active || lastClientX == null) return
+    const deltaX = event.clientX - lastClientX
+    lastClientX = event.clientX
+    if (deltaX === 0) return
+    callbacks.onDelta(deltaX, event)
   }
 
   const handleUp = (event: PointerEvent) => {
     if (!active) return
     active = false
+    lastClientX = null
     if (event.pointerId != null) {
       try {
         element.releasePointerCapture(event.pointerId)
@@ -43,6 +48,7 @@ export function bindHorizontalScrub(
     if (event.button !== 0) return
     event.preventDefault()
     active = true
+    lastClientX = event.clientX
     element.setPointerCapture(event.pointerId)
     callbacks.onStart?.(event)
     window.addEventListener('pointermove', handleMove)

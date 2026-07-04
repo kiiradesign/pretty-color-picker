@@ -2,7 +2,7 @@ import { converter } from 'culori'
 
 const toRgb = converter('rgb')
 
-/** Classic saturation × value plane — same visual for every format tab. */
+/** Saturation × value plane at a fixed hue — classic picker layout. */
 export function renderPickerPlane(canvas: HTMLCanvasElement, hue: number): void {
   const ctx = canvas.getContext('2d', { willReadFrequently: true })
   if (!ctx) return

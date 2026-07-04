@@ -3,9 +3,11 @@ import styles from './styles/color-picker.css?inline'
 import { renderPickerPlane } from './color/canvas'
 import {
   colorFromPlanePosition,
-  colorHueAngle,
+  colorFromHslScrub,
+  colorFromOklchScrub,
   colorWithHue,
   formatFieldsFor,
+  hsvHueFromColor,
   normalizeOklch,
   oklchFromCss,
   oklchToAlphaGradient,
@@ -38,6 +40,10 @@ import {
 
 type RefreshOptions = {
   refreshFields?: boolean
+  refreshPlane?: boolean
+  refreshCursor?: boolean
+  refreshSliders?: boolean
+  syncPlaneHue?: boolean
 }
 
 const FORMATS: ColorFormat[] = ['hex', 'rgb', 'hsl', 'oklch']
@@ -76,6 +82,9 @@ export class PrettyColorPicker extends HTMLElement {
   #historySection!: HTMLElement
   #themeToggleBtn: HTMLButtonElement | null = null
   #movableCleanup: (() => void) | null = null
+  #renderedPlaneHue: number | null = null
+  #planeRenderFrame: number | null = null
+  #activePlaneHue = DEFAULT_COLOR.h
 
   constructor() {
     super()
@@ -90,6 +99,10 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   disconnectedCallback(): void {
+    if (this.#planeRenderFrame != null) {
+      cancelAnimationFrame(this.#planeRenderFrame)
+      this.#planeRenderFrame = null
+    }
     this.#cleanups.forEach((fn) => fn())
     this.#cleanups = []
   }
@@ -451,22 +464,36 @@ export class PrettyColorPicker extends HTMLElement {
   #onPlaneMove(x: number, y: number): void {
     this.#planeCursor.dataset.dragging = 'true'
     const hue = this.#planeHue()
-    this.#setColor(colorFromPlanePosition(x, y, hue, this.#color.alpha), true)
+    this.#setColor(colorFromPlanePosition(x, y, hue, this.#color.alpha), true, {
+      refreshPlane: false,
+      refreshCursor: false,
+      refreshSliders: false,
+      syncPlaneHue: false,
+    })
     this.#updateCursor(x, y)
   }
 
   #onHueMove(x: number): void {
     this.#hueRow.dataset.active = 'true'
     this.#hueHandle.dataset.dragging = 'true'
+    this.#activePlaneHue = x * 360
     this.#updateSliderHandle(this.#hueHandle, x, 'hue')
-    const hue = x * 360
-    this.#setColor(colorWithHue(this.#color, hue), true)
+    this.#setColor(colorWithHue(this.#color, this.#activePlaneHue), true, {
+      refreshPlane: true,
+      refreshCursor: false,
+      refreshSliders: false,
+      syncPlaneHue: false,
+    })
   }
 
   #onAlphaMove(x: number): void {
     this.#alphaRow.dataset.active = 'true'
     this.#alphaHandle.dataset.dragging = 'true'
-    this.#setColor(normalizeOklch({ ...this.#color, alpha: x }), true)
+    this.#setColor(normalizeOklch({ ...this.#color, alpha: x }), true, {
+      refreshPlane: false,
+      refreshSliders: false,
+      syncPlaneHue: false,
+    })
     this.#updateSliderHandle(this.#alphaHandle, x, 'alpha')
   }
 
@@ -474,7 +501,11 @@ export class PrettyColorPicker extends HTMLElement {
     const left = this.#hueHandle.style.left
     const match = left.match(/calc\(([\d.]+)%/)
     if (match) return (parseFloat(match[1]) / 100) * 360
-    return colorHueAngle(this.#color)
+    return this.#activePlaneHue
+  }
+
+  #syncPlaneHueFromColor(): void {
+    this.#activePlaneHue = hsvHueFromColor(this.#color)
   }
 
   #onAlphaInput(): void {
@@ -505,6 +536,9 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #scrubStepFor(def: FormatField, fine: boolean): number {
+    if (def.scrubStep != null) {
+      return fine ? def.scrubStep * 0.1 : def.scrubStep
+    }
     const min = def.min ?? 0
     const max = def.max ?? 100
     const range = max - min
@@ -518,13 +552,21 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #scrubField(key: string, def: FormatField, deltaX: number, fine: boolean): void {
-    const current = formatFieldsFor(this.#color, this.#format).find((f) => f.key === key)
+    const input = this.#fieldsContainer.querySelector(
+      `.pcp-field-input[data-key="${key}"]`,
+    ) as HTMLInputElement | null
+
+    const fields = formatFieldsFor(this.#color, this.#format)
+    const current = fields.find((f) => f.key === key)
     if (!current) return
 
     const min = def.min ?? 0
     const max = def.max ?? 100
     const step = this.#scrubStepFor(def, fine)
-    let next = Number(current.value) + deltaX * step
+    const base = input
+      ? Number(input.value.replace(/%/g, '').trim())
+      : Number(current.value)
+    let next = base + deltaX * step
 
     if (def.step != null && def.step < 1) {
       next = Math.round(next / def.step) * def.step
@@ -533,30 +575,48 @@ export class PrettyColorPicker extends HTMLElement {
       next = Math.min(max, Math.max(min, Math.round(next)))
     }
 
-    const formatted = this.#formatScrubbedValue(def, next)
-    const fields: Record<string, string> = {}
-    formatFieldsFor(this.#color, this.#format).forEach((f) => {
-      fields[f.key] = f.key === key ? formatted : f.value
-    })
+    if (Math.abs(next - base) < (def.step != null && def.step < 1 ? def.step / 2 : 0.5)) return
 
-    const parsed = parseFormatFields(this.#format, fields, this.#color)
+    const formatted = this.#formatScrubbedValue(def, next)
+
+    let parsed: OklchColor | null = null
+    if (this.#format === 'hsl' && (key === 'h' || key === 's' || key === 'l')) {
+      parsed = colorFromHslScrub(this.#color, key, next)
+    } else if (this.#format === 'oklch' && (key === 'l' || key === 'c' || key === 'h')) {
+      parsed = colorFromOklchScrub(this.#color, key, next)
+    } else {
+      const fieldValues: Record<string, string> = {}
+      fields.forEach((f) => {
+        fieldValues[f.key] = f.key === key ? formatted : f.value
+      })
+      parsed = parseFormatFields(this.#format, fieldValues, this.#color)
+    }
+
     if (!parsed) return
 
-    this.#setColor(parsed, true, { refreshFields: false })
+    this.#setColor(parsed, true, {
+      refreshFields: false,
+      refreshCursor: true,
+      refreshSliders: true,
+    })
 
-    const input = this.#fieldsContainer.querySelector(
-      `.pcp-field-input[data-key="${key}"]`,
-    ) as HTMLInputElement | null
     if (input) input.value = formatted
   }
 
   #scrubAlpha(deltaX: number, fine: boolean): void {
     const step = fine ? 0.05 : 0.5
-    let nextPct = this.#color.alpha * 100 + deltaX * step
+    const basePct = this.#color.alpha * 100
+    let nextPct = basePct + deltaX * step
     nextPct = Math.min(100, Math.max(0, fine ? nextPct : Math.round(nextPct)))
+    if (Math.abs(nextPct - basePct) < 0.01) return
     const alpha = nextPct / 100
 
-    this.#setColor(normalizeOklch({ ...this.#color, alpha }), true, { refreshFields: false })
+    this.#setColor(normalizeOklch({ ...this.#color, alpha }), true, {
+      refreshFields: false,
+      refreshPlane: false,
+      refreshSliders: false,
+      syncPlaneHue: false,
+    })
     this.#alphaInput.value = `${Math.round(nextPct)}%`
   }
 
@@ -614,10 +674,17 @@ export class PrettyColorPicker extends HTMLElement {
 
   #setColor(color: OklchColor, emit = true, options?: RefreshOptions): void {
     this.#color = normalizeOklch(color)
+    const dragging =
+      this.#planeCursor.hasAttribute('data-dragging') ||
+      this.#hueHandle.hasAttribute('data-dragging')
+    if (!dragging && options?.syncPlaneHue !== false) {
+      this.#syncPlaneHueFromColor()
+    }
     this.#refreshVisuals(emit, options)
   }
 
   #refreshAll(emit = true): void {
+    this.#syncPlaneHueFromColor()
     this.#refreshPlane()
     this.#refreshTabs()
     this.#refreshVisuals(emit)
@@ -629,21 +696,51 @@ export class PrettyColorPicker extends HTMLElement {
       this.#refreshFields()
     }
     this.#refreshSwatch()
-    this.#refreshSliders()
-    this.#refreshCursor()
-    this.#refreshPlane()
+
+    if (options?.refreshSliders !== false) {
+      this.#refreshSliders()
+    }
+
+    if (options?.refreshCursor !== false && !this.#planeCursor.hasAttribute('data-dragging')) {
+      this.#refreshCursor()
+    }
+
+    if (options?.refreshPlane === true) {
+      this.#schedulePlaneRefresh()
+    } else if (
+      options?.refreshPlane !== false &&
+      !this.#planeCursor.hasAttribute('data-dragging') &&
+      !this.#hueHandle.hasAttribute('data-dragging') &&
+      this.#renderedPlaneHue !== this.#planeHue()
+    ) {
+      this.#schedulePlaneRefresh()
+    }
+
     if (emit) this.#emitChange()
+  }
+
+  #schedulePlaneRefresh(): void {
+    if (this.#planeRenderFrame != null) return
+    this.#planeRenderFrame = requestAnimationFrame(() => {
+      this.#planeRenderFrame = null
+      const hue = this.#planeHue()
+      if (this.#renderedPlaneHue === hue) return
+      renderPickerPlane(this.#planeCanvas, hue)
+      this.#renderedPlaneHue = hue
+    })
   }
 
   #planeHue(): number {
     if (this.#hueHandle.hasAttribute('data-dragging')) {
       return this.#readHueFromSlider()
     }
-    return colorHueAngle(this.#color)
+    return this.#activePlaneHue
   }
 
   #refreshPlane(): void {
-    renderPickerPlane(this.#planeCanvas, this.#planeHue())
+    const hue = this.#planeHue()
+    renderPickerPlane(this.#planeCanvas, hue)
+    this.#renderedPlaneHue = hue
   }
 
   #refreshCursor(): void {
@@ -657,10 +754,8 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #refreshSliders(): void {
-    const hue = colorHueAngle(this.#color)
-    const hueT = this.#hueHandle.hasAttribute('data-dragging')
-      ? this.#parseHandleT(this.#hueHandle, hue / 360)
-      : hue / 360
+    const hue = this.#planeHue()
+    const hueT = hue / 360
 
     if (this.#hueHandle.hasAttribute('data-dragging')) {
       this.#updateSliderHandleColor(this.#hueHandle, hueT, 'hue')
@@ -788,11 +883,21 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #commitHistory(): void {
+    const wasPlaneDragging = this.#planeCursor.hasAttribute('data-dragging')
+    const wasHueDragging = this.#hueHandle.hasAttribute('data-dragging')
     delete this.#planeCursor.dataset.dragging
     delete this.#hueHandle.dataset.dragging
     delete this.#alphaHandle.dataset.dragging
     delete this.#hueRow.dataset.active
     delete this.#alphaRow.dataset.active
+    if (wasPlaneDragging || wasHueDragging) {
+      this.#syncPlaneHueFromColor()
+      this.#refreshSliders()
+      this.#refreshCursor()
+      if (this.#renderedPlaneHue !== this.#planeHue()) {
+        this.#refreshPlane()
+      }
+    }
     const previous = this.#editStartColor
     this.#editStartColor = null
     if (this.history && previous && !colorsEqual(previous, this.#color)) {

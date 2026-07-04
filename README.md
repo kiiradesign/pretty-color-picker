@@ -1,6 +1,6 @@
 # Pretty Color Picker
 
-A perceptually accurate color picker for the modern web. OKLCH is the internal source of truth; Hex, RGB, HSL, and OKLCH are display formats.
+A perceptually accurate color picker for the modern web. Colors are stored internally as **OKLCH** (`picker.color`); Hex, RGB, HSL, and OKLCH are edit/display formats. The 2D plane is a classic **saturation × value** slice at the current hue — the layout every color picker uses — not an OKLCH chroma × lightness plane.
 
 Native **Web Component** — works in any framework or plain HTML.
 
@@ -10,7 +10,7 @@ The design and interactions are inspired by [DialKit](https://joshpuckett.me/dia
 
 ## Features
 
-OKLCH color plane, hue and alpha sliders, format tabs (Hex / RGB / HSL / OKLCH), Last Used history, label scrubbing, draggable panel (`movable`), light / dark / system themes, Shadow DOM.
+Saturation × value color plane with hue and alpha sliders, format tabs (Hex / RGB / HSL / OKLCH), Last Used history, label scrubbing, draggable panel (`movable`), light / dark / system themes, Shadow DOM.
 
 ## Install
 

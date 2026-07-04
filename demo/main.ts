@@ -1,6 +1,6 @@
 import '../src/pretty-color-picker'
 import { oklchToRgbString } from '../src/color/conversions'
-import type { ColorChangeDetail, ThemeChangeDetail } from '../src/types'
+import type { ColorChangeDetail } from '../src/types'
 import type { PrettyColorPicker } from '../src/pretty-color-picker'
 
 const DEMO_COLOR_DARK = '#FFF4ED'
@@ -28,9 +28,24 @@ function applyDemoDefaults(): void {
   applyPageBackground(color)
 }
 
+let pendingBackground: string | null = null
+let backgroundFrame: number | null = null
+
+function schedulePageBackground(color: string): void {
+  pendingBackground = color
+  if (backgroundFrame != null) return
+  backgroundFrame = requestAnimationFrame(() => {
+    backgroundFrame = null
+    if (pendingBackground != null) {
+      applyPageBackground(pendingBackground)
+      pendingBackground = null
+    }
+  })
+}
+
 picker.addEventListener('change', (event) => {
   const detail = (event as CustomEvent<ColorChangeDetail>).detail
-  applyPageBackground(oklchToRgbString(detail.color))
+  schedulePageBackground(oklchToRgbString(detail.color))
 })
 
 picker.addEventListener('themechange', () => {

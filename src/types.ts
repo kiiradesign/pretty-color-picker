@@ -21,6 +21,8 @@ export interface FormatField {
   min?: number
   max?: number
   step?: number
+  /** Label-scrub sensitivity (value units per pixel). */
+  scrubStep?: number
   suffix?: string
 }
 
