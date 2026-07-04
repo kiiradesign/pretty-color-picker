@@ -50,17 +50,24 @@
   color: var(--pcp-text-primary);
 }
 
+:host([mode='popover']),
 :host([movable]) {
   position: fixed;
   z-index: 1000;
   margin: 0;
 }
 
+:host([mode='popover']:not([open])) {
+  display: none;
+}
+
+:host([mode='popover']) .pcp-header,
 :host([movable]) .pcp-header {
   cursor: grab;
   touch-action: none;
 }
 
+:host([mode='popover']) .pcp-header[data-dragging='true'],
 :host([movable]) .pcp-header[data-dragging='true'] {
   cursor: grabbing;
 }

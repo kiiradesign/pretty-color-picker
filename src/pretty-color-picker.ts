@@ -27,6 +27,7 @@ import {
 } from './utils/contrast'
 import { bindHorizontalScrub, bindPointerDrag } from './utils/pointer'
 import { bindPanelDrag, centerPanel } from './utils/panel-drag'
+import { positionPopover, resolveAnchor } from './utils/popover'
 import {
   DEFAULT_COLOR,
   type ColorChangeDetail,
@@ -56,7 +57,7 @@ const FORMAT_LABELS: Record<ColorFormat, string> = {
 
 export class PrettyColorPicker extends HTMLElement {
   static get observedAttributes(): string[] {
-    return ['value', 'theme', 'header-action', 'movable', 'history']
+    return ['value', 'theme', 'header-action', 'movable', 'mode', 'anchor', 'open', 'history']
   }
 
   #shadow: ShadowRoot
@@ -82,6 +83,8 @@ export class PrettyColorPicker extends HTMLElement {
   #historySection!: HTMLElement
   #themeToggleBtn: HTMLButtonElement | null = null
   #movableCleanup: (() => void) | null = null
+  #popoverCleanup: (() => void) | null = null
+  #anchorEl: HTMLElement | null = null
   #renderedPlaneHue: number | null = null
   #planeRenderFrame: number | null = null
   #activePlaneHue = DEFAULT_COLOR.h
@@ -96,6 +99,11 @@ export class PrettyColorPicker extends HTMLElement {
     this.#bind()
     this.#applyValueAttribute()
     this.#refreshAll(false)
+    this.#syncPopover()
+    this.#syncMovable()
+    if (this.popoverMode && this.open) {
+      requestAnimationFrame(() => this.#positionToAnchor())
+    }
   }
 
   disconnectedCallback(): void {
@@ -103,6 +111,7 @@ export class PrettyColorPicker extends HTMLElement {
       cancelAnimationFrame(this.#planeRenderFrame)
       this.#planeRenderFrame = null
     }
+    this.#teardownPopover()
     this.#cleanups.forEach((fn) => fn())
     this.#cleanups = []
   }
@@ -122,6 +131,16 @@ export class PrettyColorPicker extends HTMLElement {
     }
     if (name === 'movable') {
       this.#syncMovable()
+    }
+    if (name === 'mode' || name === 'anchor') {
+      this.#syncPopover()
+      this.#syncMovable()
+    }
+    if (name === 'open' && this.popoverMode && value != null) {
+      requestAnimationFrame(() => {
+        this.#positionToAnchor()
+        this.#refreshPlane()
+      })
     }
     if (name === 'history') {
       this.#syncHistorySection()
@@ -174,6 +193,61 @@ export class PrettyColorPicker extends HTMLElement {
   set movable(value: boolean) {
     if (value) this.setAttribute('movable', '')
     else this.removeAttribute('movable')
+  }
+
+  /** `inline` (default) or `popover` for a floating panel anchored to `anchor`. */
+  get mode(): 'inline' | 'popover' {
+    return this.getAttribute('mode') === 'popover' ? 'popover' : 'inline'
+  }
+
+  set mode(value: 'inline' | 'popover') {
+    if (value === 'popover') this.setAttribute('mode', 'popover')
+    else this.removeAttribute('mode')
+  }
+
+  get popoverMode(): boolean {
+    return this.mode === 'popover'
+  }
+
+  /** CSS selector or element id for the popover trigger (e.g. `#btn` or `.trigger`). */
+  get anchor(): string | null {
+    return this.getAttribute('anchor')
+  }
+
+  set anchor(value: string | null) {
+    if (value) this.setAttribute('anchor', value)
+    else this.removeAttribute('anchor')
+  }
+
+  get open(): boolean {
+    return this.hasAttribute('open')
+  }
+
+  set open(value: boolean) {
+    if (value) this.show()
+    else this.hide()
+  }
+
+  show(): void {
+    if (!this.popoverMode) return
+    if (this.open) {
+      requestAnimationFrame(() => {
+        this.#positionToAnchor()
+        this.#refreshPlane()
+      })
+      return
+    }
+    this.setAttribute('open', '')
+  }
+
+  hide(): void {
+    if (!this.popoverMode || !this.open) return
+    this.removeAttribute('open')
+  }
+
+  toggle(): void {
+    if (this.open) this.hide()
+    else this.show()
   }
 
   /** Last Used swatch grid — on by default; set `history="false"` to hide. */
@@ -275,9 +349,7 @@ export class PrettyColorPicker extends HTMLElement {
 
   #bind(): void {
     const closeBtn = this.#shadow.querySelector('.pcp-close')
-    closeBtn?.addEventListener('click', () => {
-      this.dispatchEvent(new CustomEvent('close', { bubbles: true, composed: true }))
-    })
+    closeBtn?.addEventListener('click', () => this.#handleClose())
 
     this.#themeToggleBtn?.addEventListener('click', () => this.#toggleTheme())
 
@@ -336,6 +408,101 @@ export class PrettyColorPicker extends HTMLElement {
     this.#syncHistorySection()
   }
 
+  #handleClose(): void {
+    if (this.popoverMode) this.hide()
+    this.dispatchEvent(new CustomEvent('close', { bubbles: true, composed: true }))
+  }
+
+  #resolveAnchorEl(): HTMLElement | null {
+    const selector = this.anchor
+    if (!selector) return null
+    return resolveAnchor(selector, this.ownerDocument)
+  }
+
+  #positionToAnchor(): void {
+    this.#anchorEl = this.#resolveAnchorEl()
+    if (this.#anchorEl) {
+      positionPopover(this, this.#anchorEl)
+      this.setAttribute('data-positioned', '')
+    } else if (this.movable || this.popoverMode) {
+      centerPanel(this)
+      this.setAttribute('data-positioned', '')
+    }
+  }
+
+  #teardownPopover(): void {
+    if (this.#popoverCleanup) {
+      const idx = this.#cleanups.indexOf(this.#popoverCleanup)
+      if (idx >= 0) this.#cleanups.splice(idx, 1)
+      this.#popoverCleanup()
+      this.#popoverCleanup = null
+    }
+    this.#anchorEl = null
+  }
+
+  #syncPopover(): void {
+    this.#teardownPopover()
+
+    if (!this.popoverMode) {
+      this.removeAttribute('open')
+      if (!this.movable) {
+        this.style.position = ''
+        this.style.left = ''
+        this.style.top = ''
+        this.style.zIndex = ''
+      }
+      return
+    }
+
+    if (!this.movable) {
+      this.style.position = 'fixed'
+      this.style.zIndex = '1000'
+    }
+
+    const anchor = this.#resolveAnchorEl()
+    this.#anchorEl = anchor
+
+    const onAnchorClick = (event: Event) => {
+      event.preventDefault()
+      event.stopPropagation()
+      this.toggle()
+    }
+
+    const onDocumentPointerDown = (event: PointerEvent) => {
+      if (!this.open) return
+      const path = event.composedPath()
+      if (path.includes(this)) return
+      if (anchor && path.includes(anchor)) return
+      this.hide()
+    }
+
+    const onDocumentKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && this.open) {
+        event.preventDefault()
+        this.#handleClose()
+      }
+    }
+
+    const onViewportChange = () => {
+      if (this.open) this.#positionToAnchor()
+    }
+
+    anchor?.addEventListener('click', onAnchorClick)
+    document.addEventListener('pointerdown', onDocumentPointerDown, true)
+    document.addEventListener('keydown', onDocumentKeyDown)
+    window.addEventListener('resize', onViewportChange)
+    window.addEventListener('scroll', onViewportChange, true)
+
+    this.#popoverCleanup = () => {
+      anchor?.removeEventListener('click', onAnchorClick)
+      document.removeEventListener('pointerdown', onDocumentPointerDown, true)
+      document.removeEventListener('keydown', onDocumentKeyDown)
+      window.removeEventListener('resize', onViewportChange)
+      window.removeEventListener('scroll', onViewportChange, true)
+    }
+    this.#cleanups.push(this.#popoverCleanup)
+  }
+
   #syncHistorySection(): void {
     if (!this.history) {
       this.#historySection.hidden = true
@@ -353,16 +520,20 @@ export class PrettyColorPicker extends HTMLElement {
       this.#movableCleanup = null
     }
 
-    if (!this.movable) {
-      this.style.position = ''
-      this.style.left = ''
-      this.style.top = ''
-      this.style.zIndex = ''
+    const canDrag = this.movable || this.popoverMode
+
+    if (!canDrag) {
+      if (!this.popoverMode) {
+        this.style.position = ''
+        this.style.left = ''
+        this.style.top = ''
+        this.style.zIndex = ''
+      }
       this.removeAttribute('data-positioned')
       return
     }
 
-    if (!this.hasAttribute('data-positioned')) {
+    if (!this.popoverMode && !this.hasAttribute('data-positioned')) {
       requestAnimationFrame(() => {
         centerPanel(this)
         this.setAttribute('data-positioned', '')

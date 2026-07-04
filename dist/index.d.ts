@@ -65,6 +65,18 @@ export declare class PrettyColorPicker extends HTMLElement {
     set headerAction(value: PickerHeaderAction);
     get movable(): boolean;
     set movable(value: boolean);
+    /** `inline` (default) or `popover` for a floating panel anchored to `anchor`. */
+    get mode(): 'inline' | 'popover';
+    set mode(value: 'inline' | 'popover');
+    get popoverMode(): boolean;
+    /** CSS selector or element id for the popover trigger (e.g. `#btn` or `.trigger`). */
+    get anchor(): string | null;
+    set anchor(value: string | null);
+    get open(): boolean;
+    set open(value: boolean);
+    show(): void;
+    hide(): void;
+    toggle(): void;
     /** Last Used swatch grid — on by default; set `history="false"` to hide. */
     get history(): boolean;
     set history(value: boolean);

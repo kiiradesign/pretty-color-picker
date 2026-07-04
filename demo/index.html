@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pretty Color Picker — Demo</title>
+    <title>Pretty Color Picker - Demo</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link
       rel="stylesheet"
@@ -22,6 +22,9 @@
       body {
         margin: 0;
         min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: #0c1615;
         font-family: 'Geist', system-ui, sans-serif;
       }
@@ -31,10 +34,66 @@
           background: #fff4ed;
         }
       }
+
+      .demo-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        color: inherit;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+      }
+
+      .demo-trigger:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .demo-swatch {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        background: var(--demo-color, #fff4ed);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .demo-trigger {
+          border-color: rgba(0, 0, 0, 0.1);
+          background: rgba(0, 0, 0, 0.04);
+          color: #111;
+        }
+
+        .demo-trigger:hover {
+          background: rgba(0, 0, 0, 0.08);
+        }
+
+        .demo-swatch {
+          border-color: rgba(0, 0, 0, 0.12);
+        }
+      }
     </style>
   </head>
   <body>
-    <pretty-color-picker theme="system" header-action="theme" movable></pretty-color-picker>
+    <button type="button" class="demo-trigger" id="color-trigger" aria-haspopup="dialog">
+      <span class="demo-swatch" id="color-preview" aria-hidden="true"></span>
+      Pick a color
+    </button>
+
+    <pretty-color-picker
+      id="color-picker"
+      mode="popover"
+      anchor="#color-trigger"
+      header-action="close"
+      theme="system"
+      value="#fff4ed"
+    ></pretty-color-picker>
+
     <script type="module" src="./main.ts"></script>
   </body>
 </html>
