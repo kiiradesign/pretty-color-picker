@@ -48,7 +48,7 @@ import 'pretty-color-picker'
 | --------------- | --------------------------- | ------------------------------------------------ |
 | `value`         | CSS color                   | Initial color                                    |
 | `theme`         | `light` \| `dark` \| `system` | Chrome theme                                     |
-| `header-action` | `close` \| `theme`          | Close button or theme toggle                     |
+| `header-action` | `close` \| `theme` \| `none` | Close button, theme toggle, or no header button |
 | `mode`          | `inline` \| `popover`       | `popover` = floating panel anchored to `anchor` |
 | `anchor`        | CSS selector                | Trigger for popover mode (e.g. `#color-btn`)     |
 | `open`          | present when visible        | Popover visibility (also `show()` / `hide()`)    |

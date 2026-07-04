@@ -42,7 +42,7 @@ export declare function oklchToRgbString(color: OklchColor): string;
 
 export declare function parseFormatFields(format: ColorFormat, fields: Record<string, string>, current: OklchColor): OklchColor | null;
 
-export declare type PickerHeaderAction = 'close' | 'theme';
+export declare type PickerHeaderAction = 'close' | 'theme' | 'none';
 
 export declare type PickerPlaneMode = 'oklch' | 'hsl' | 'rgb';
 

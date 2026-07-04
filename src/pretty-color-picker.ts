@@ -2,12 +2,15 @@ import { MOON_ICON, SUN_ICON } from './icons'
 import styles from './styles/color-picker.css?inline'
 import { renderPickerPlane } from './color/canvas'
 import {
+  clampHue,
   colorFromPlanePosition,
   colorFromHslScrub,
   colorFromOklchScrub,
   colorWithHue,
   formatFieldsFor,
   hsvHueFromColor,
+  isHueLocked,
+  lockHueTo,
   normalizeOklch,
   oklchFromCss,
   oklchToAlphaGradient,
@@ -82,6 +85,7 @@ export class PrettyColorPicker extends HTMLElement {
   #historyContainer!: HTMLElement
   #historySection!: HTMLElement
   #themeToggleBtn: HTMLButtonElement | null = null
+  #headerButtonCleanup: (() => void) | null = null
   #movableCleanup: (() => void) | null = null
   #popoverCleanup: (() => void) | null = null
   #anchorEl: HTMLElement | null = null
@@ -111,6 +115,8 @@ export class PrettyColorPicker extends HTMLElement {
       cancelAnimationFrame(this.#planeRenderFrame)
       this.#planeRenderFrame = null
     }
+    this.#headerButtonCleanup?.()
+    this.#headerButtonCleanup = null
     this.#teardownPopover()
     this.#cleanups.forEach((fn) => fn())
     this.#cleanups = []
@@ -144,6 +150,9 @@ export class PrettyColorPicker extends HTMLElement {
     }
     if (name === 'history') {
       this.#syncHistorySection()
+    }
+    if (name === 'header-action') {
+      this.#syncHeaderButton()
     }
   }
 
@@ -179,7 +188,10 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   get headerAction(): PickerHeaderAction {
-    return this.getAttribute('header-action') === 'theme' ? 'theme' : 'close'
+    const value = this.getAttribute('header-action')
+    if (value === 'theme') return 'theme'
+    if (value === 'none') return 'none'
+    return 'close'
   }
 
   set headerAction(value: PickerHeaderAction) {
@@ -272,9 +284,11 @@ export class PrettyColorPicker extends HTMLElement {
 
   #render(): void {
     const headerButton =
-      this.headerAction === 'theme'
-        ? `<button type="button" class="pcp-header-btn pcp-theme-toggle" aria-label="Switch to light mode">${SUN_ICON}</button>`
-        : `<button type="button" class="pcp-header-btn pcp-close" aria-label="Close">
+      this.headerAction === 'none'
+        ? ''
+        : this.headerAction === 'theme'
+          ? `<button type="button" class="pcp-header-btn pcp-theme-toggle" aria-label="Switch to light mode">${SUN_ICON}</button>`
+          : `<button type="button" class="pcp-header-btn pcp-close" aria-label="Close">
             <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path
                 d="M4.25 4.25L11.75 11.75M11.75 4.25L4.25 11.75"
@@ -348,10 +362,7 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #bind(): void {
-    const closeBtn = this.#shadow.querySelector('.pcp-close')
-    closeBtn?.addEventListener('click', () => this.#handleClose())
-
-    this.#themeToggleBtn?.addEventListener('click', () => this.#toggleTheme())
+    this.#bindHeaderButton()
 
     this.#cleanups.push(
       bindPointerDrag(
@@ -581,6 +592,61 @@ export class PrettyColorPicker extends HTMLElement {
     )
   }
 
+  #bindHeaderButton(): void {
+    this.#headerButtonCleanup?.()
+    this.#headerButtonCleanup = null
+
+    const closeBtn = this.#shadow.querySelector('.pcp-close')
+    if (closeBtn) {
+      const onClose = () => this.#handleClose()
+      closeBtn.addEventListener('click', onClose)
+      this.#headerButtonCleanup = () => closeBtn.removeEventListener('click', onClose)
+      return
+    }
+
+    const themeBtn = this.#shadow.querySelector('.pcp-theme-toggle')
+    if (themeBtn) {
+      const onTheme = () => this.#toggleTheme()
+      themeBtn.addEventListener('click', onTheme)
+      this.#headerButtonCleanup = () => themeBtn.removeEventListener('click', onTheme)
+    }
+  }
+
+  #syncHeaderButton(): void {
+    this.#headerButtonCleanup?.()
+    this.#headerButtonCleanup = null
+
+    const header = this.#shadow.querySelector('.pcp-header')
+    if (!header) return
+
+    header.querySelector('.pcp-header-btn')?.remove()
+    this.#themeToggleBtn = null
+
+    if (this.headerAction === 'none') return
+
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = `pcp-header-btn ${this.headerAction === 'theme' ? 'pcp-theme-toggle' : 'pcp-close'}`
+    header.appendChild(btn)
+
+    if (this.headerAction === 'theme') {
+      this.#themeToggleBtn = btn
+      this.#updateThemeToggleButton()
+    } else {
+      btn.setAttribute('aria-label', 'Close')
+      btn.innerHTML = `<svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path
+          d="M4.25 4.25L11.75 11.75M11.75 4.25L4.25 11.75"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        />
+      </svg>`
+    }
+
+    this.#bindHeaderButton()
+  }
+
   #bindSliderHover(slider: HTMLElement): () => void {
     const onEnter = () => {
       slider.dataset.active = 'true'
@@ -676,6 +742,7 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #syncPlaneHueFromColor(): void {
+    if (isHueLocked(this.#color)) return
     this.#activePlaneHue = hsvHueFromColor(this.#color)
   }
 
@@ -754,7 +821,7 @@ export class PrettyColorPicker extends HTMLElement {
     if (this.#format === 'hsl' && (key === 'h' || key === 's' || key === 'l')) {
       parsed = colorFromHslScrub(this.#color, key, next)
     } else if (this.#format === 'oklch' && (key === 'l' || key === 'c' || key === 'h')) {
-      parsed = colorFromOklchScrub(this.#color, key, next)
+      parsed = colorFromOklchScrub(this.#color, key, next, this.#activePlaneHue)
     } else {
       const fieldValues: Record<string, string> = {}
       fields.forEach((f) => {
@@ -765,10 +832,18 @@ export class PrettyColorPicker extends HTMLElement {
 
     if (!parsed) return
 
+    if (key === 'h') {
+      this.#activePlaneHue = clampHue(next)
+    }
+
+    const preservePlaneHue =
+      key === 'h' || (this.#format === 'oklch' && (key === 'c' || key === 'l'))
+
     this.#setColor(parsed, true, {
       refreshFields: false,
       refreshCursor: true,
       refreshSliders: true,
+      syncPlaneHue: !preservePlaneHue,
     })
 
     if (input) input.value = formatted
@@ -844,18 +919,25 @@ export class PrettyColorPicker extends HTMLElement {
   }
 
   #setColor(color: OklchColor, emit = true, options?: RefreshOptions): void {
-    this.#color = normalizeOklch(color)
+    let next = normalizeOklch(color)
+    if (isHueLocked(next)) {
+      next = lockHueTo(next, this.#activePlaneHue)
+    }
+
+    this.#color = next
     const dragging =
       this.#planeCursor.hasAttribute('data-dragging') ||
       this.#hueHandle.hasAttribute('data-dragging')
-    if (!dragging && options?.syncPlaneHue !== false) {
+    if (!dragging && options?.syncPlaneHue !== false && !isHueLocked(next)) {
       this.#syncPlaneHueFromColor()
     }
     this.#refreshVisuals(emit, options)
   }
 
   #refreshAll(emit = true): void {
-    this.#syncPlaneHueFromColor()
+    if (!isHueLocked(this.#color)) {
+      this.#syncPlaneHueFromColor()
+    }
     this.#refreshPlane()
     this.#refreshTabs()
     this.#refreshVisuals(emit)
@@ -1062,7 +1144,9 @@ export class PrettyColorPicker extends HTMLElement {
     delete this.#hueRow.dataset.active
     delete this.#alphaRow.dataset.active
     if (wasPlaneDragging || wasHueDragging) {
-      this.#syncPlaneHueFromColor()
+      if (!isHueLocked(this.#color)) {
+        this.#syncPlaneHueFromColor()
+      }
       this.#refreshSliders()
       this.#refreshCursor()
       if (this.#renderedPlaneHue !== this.#planeHue()) {

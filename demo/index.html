@@ -31,10 +31,84 @@
           background: #fff4ed;
         }
       }
+
+      .demo-chrome {
+        position: fixed;
+        inset: auto 0 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 0 24px;
+        font-size: 12px;
+        line-height: 1.4;
+        --chrome-rgb: 255, 255, 255;
+        --chrome-opacity: 0.58;
+        --chrome-opacity-hover: 0.88;
+        color: rgba(var(--chrome-rgb), var(--chrome-opacity));
+        pointer-events: none;
+        user-select: none;
+        transition: color 0.15s ease;
+      }
+
+      .demo-chrome a {
+        pointer-events: auto;
+        color: inherit;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        transition: color 0.15s ease;
+      }
+
+      .demo-chrome a:hover {
+        color: rgba(var(--chrome-rgb), var(--chrome-opacity-hover));
+      }
+
+      .demo-hint {
+        margin: 0;
+      }
+
+      .demo-hint kbd {
+        display: inline-block;
+        min-width: 1.25em;
+        padding: 1px 5px;
+        border-radius: 4px;
+        border: 1px solid rgba(var(--chrome-rgb), 0.22);
+        background: rgba(var(--chrome-rgb), 0.1);
+        font-family: inherit;
+        font-size: 11px;
+        font-weight: 500;
+        text-align: center;
+        text-transform: uppercase;
+        transition:
+          border-color 0.15s ease,
+          background-color 0.15s ease;
+      }
+
+      @media (max-width: 640px) {
+        .demo-chrome {
+          display: none;
+        }
+      }
     </style>
   </head>
   <body>
-    <pretty-color-picker theme="system" header-action="theme" movable></pretty-color-picker>
+    <pretty-color-picker
+      id="demo-picker"
+      theme="system"
+      header-action="none"
+      movable
+      history="false"
+    ></pretty-color-picker>
+    <footer class="demo-chrome">
+      <p class="demo-hint" aria-live="polite"></p>
+      <a
+        class="demo-github"
+        href="https://github.com/kiiradesign/pretty-color-picker"
+        target="_blank"
+        rel="noopener noreferrer"
+        >View on GitHub</a
+      >
+    </footer>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

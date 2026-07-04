@@ -10,7 +10,7 @@ export type ColorFormat = 'hex' | 'rgb' | 'hsl' | 'oklch'
 
 export type PickerTheme = 'dark' | 'light' | 'system'
 
-export type PickerHeaderAction = 'close' | 'theme'
+export type PickerHeaderAction = 'close' | 'theme' | 'none'
 
 export type PickerPlaneMode = 'oklch' | 'hsl' | 'rgb'
 

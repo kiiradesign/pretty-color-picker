@@ -8,6 +8,32 @@ const toHsl = converter('hsl')
 const HUE_SLIDER_L = 0.7
 const maxChromaCache = new Map<string, number>()
 
+/** Below this OKLCH chroma, hue is undefined — plane hue must be preserved separately. */
+export const ACHROMATIC_CHROMA = 0.002
+
+/** Below this HSV saturation, the plane's horizontal axis is achromatic. */
+export const ACHROMATIC_SATURATION = 0.004
+
+export function isAchromatic(color: Pick<OklchColor, 'c'>): boolean {
+  return color.c <= ACHROMATIC_CHROMA
+}
+
+export function hsvSaturationFromOklch(color: OklchColor): number {
+  const hsv = toHsv({ mode: 'oklch', ...color, alpha: 1 })
+  return Math.max(0, hsv?.s ?? 0)
+}
+
+/** Hue is meaningless for display or plane rendering — lock to `#activePlaneHue`. */
+export function isHueLocked(color: OklchColor): boolean {
+  if (isAchromatic(color)) return true
+  return hsvSaturationFromOklch(color) < ACHROMATIC_SATURATION
+}
+
+export function lockHueTo(color: OklchColor, hue: number): OklchColor {
+  if (!isHueLocked(color)) return color
+  return { ...color, h: clampHue(hue) }
+}
+
 export function normalizeOklch(color: Partial<OklchColor>): OklchColor {
   const l = clamp01(color.l ?? 0)
   const c = Math.max(0, color.c ?? 0)
@@ -16,12 +42,12 @@ export function normalizeOklch(color: Partial<OklchColor>): OklchColor {
 
   const clamped = clampChroma({ mode: 'oklch', l, c, h, alpha }, 'rgb') as Oklch
 
-  const achromatic = c < 0.0001
+  const achromatic = isAchromatic({ c })
 
   return {
     l: clamped.l ?? l,
     c: achromatic ? 0 : (clamped.c ?? 0),
-    h,
+    h: achromatic ? clampHue(h) : h,
     alpha: clamped.alpha ?? alpha,
   }
 }
@@ -79,8 +105,9 @@ export function oklchToAlphaGradient(color: OklchColor): string {
   return `linear-gradient(to right, rgba(${r}, ${g}, ${b}, 0), rgb(${r}, ${g}, ${b}))`
 }
 
+/** HSV hue for chromatic colors only — do not use to derive plane hue when hue-locked. */
 export function hsvHueFromColor(color: OklchColor): number {
-  if (color.c < 0.0001) return clampHue(color.h)
+  if (isHueLocked(color)) return clampHue(color.h)
   const hsv = toHsv({ mode: 'oklch', ...color, alpha: 1 })
   return clampHue(hsv?.h ?? color.h)
 }
@@ -99,12 +126,16 @@ export function colorWithHue(color: OklchColor, hue: number): OklchColor {
     rgb ?? { mode: 'hsv', h: clampedHue, s: hsv?.s ?? 0, v: hsv?.v ?? 1 },
   )
   if (parsed?.l != null) {
-    return normalizeOklch({
-      l: parsed.l,
-      c: parsed.c ?? 0,
-      h: parsed.h ?? clampedHue,
-      alpha: color.alpha,
-    })
+    const c = parsed.c ?? 0
+    return lockHueTo(
+      normalizeOklch({
+        l: parsed.l,
+        c,
+        h: parsed.h ?? clampedHue,
+        alpha: color.alpha,
+      }),
+      clampedHue,
+    )
   }
 
   return normalizeOklch({ ...color, h: clampedHue })
@@ -175,12 +206,24 @@ export function colorFromOklchScrub(
   color: OklchColor,
   key: 'l' | 'c' | 'h',
   value: number,
+  planeHue?: number,
 ): OklchColor {
   switch (key) {
-    case 'l':
-      return normalizeOklch({ ...color, l: value / 100 })
-    case 'c':
-      return normalizeOklch({ ...color, c: value })
+    case 'l': {
+      const next = normalizeOklch({ ...color, l: value / 100 })
+      return planeHue != null ? lockHueTo(next, planeHue) : next
+    }
+    case 'c': {
+      const c = Math.max(0, value)
+      const h =
+        c <= ACHROMATIC_CHROMA || isHueLocked(color)
+          ? planeHue != null
+            ? clampHue(planeHue)
+            : clampHue(color.h)
+          : color.h
+      const next = normalizeOklch({ ...color, c, h })
+      return planeHue != null ? lockHueTo(next, planeHue) : next
+    }
     case 'h':
       return colorWithHue(color, value)
   }
@@ -221,7 +264,7 @@ export function parseFormatFields(
       if ([l, c, h].some((v) => Number.isNaN(v))) return null
       if (c <= 0) {
         c = 0
-        if (current.c > 0.0001) h = current.h
+        if (!isAchromatic(current)) h = current.h
       }
       return normalizeOklch({ l: l / 100, c, h, alpha: current.alpha })
     }
@@ -275,10 +318,12 @@ export function colorFromPlanePosition(
   )
 
   if (parsed?.l != null) {
+    const c = parsed.c ?? 0
+    const hueLocked = cx < ACHROMATIC_SATURATION || isAchromatic({ c })
     return normalizeOklch({
       l: parsed.l,
-      c: parsed.c ?? 0,
-      h: parsed.h ?? clampedHue,
+      c,
+      h: hueLocked ? clampedHue : (parsed.h ?? clampedHue),
       alpha,
     })
   }
