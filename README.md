@@ -1,12 +1,12 @@
 # Pretty Color Picker
 
-A perceptually accurate color picker for the modern web. Colors are stored internally as **OKLCH** (`picker.color`); Hex, RGB, HSL, and OKLCH are edit/display formats. The 2D plane is a classic **saturation × value** slice at the current hue — the layout every color picker uses — not an OKLCH chroma × lightness plane.
+A perceptually accurate color picker for the modern web. Colors are stored internally as **OKLCH** (`picker.color`); Hex, RGB, HSL, and OKLCH are edit/display formats. The 2D plane is a classic **saturation × value** slice at the current hue (the layout every color picker uses), not an OKLCH chroma × lightness plane.
 
-Native **Web Component** — works in any framework or plain HTML.
+Native **Web Component**. Works in any framework or plain HTML.
 
 Try the live demo here: [https://colors.kiira.in](https://colors.kiira.in)
 
-The design and interactions are inspired by [DialKit](https://joshpuckett.me/dialkit) — I'm considering contributing this component upstream.
+The design and interactions are inspired by [DialKit](https://joshpuckett.me/dialkit). I'm considering contributing this component upstream.
 
 ## Features
 
@@ -44,7 +44,7 @@ import 'pretty-color-picker'
 | `history`       | `false` to hide             | Last Used swatch grid (on by default; hidden until the first color is committed) |
 
 
-**Events:** `change` (`detail.color`, `detail.css`, `detail.hex`) — while dragging sliders or scrubbing labels; field inputs commit on Enter/blur. Not fired on mount. `close` when `header-action="close"`. `themechange` when `header-action="theme"`.
+**Events:** `change` (`detail.color`, `detail.css`, `detail.hex`) fires while dragging sliders or scrubbing labels; field inputs commit on Enter/blur. Not fired on mount. `close` when `header-action="close"`. `themechange` when `header-action="theme"`.
 
 **API:** `picker.value`, `picker.color` (OKLCH), `picker.theme`, `picker.headerAction`, `picker.movable`, `picker.history`.
 
@@ -52,4 +52,4 @@ TypeScript types exported from `pretty-color-picker`.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Icons from [Phosphor](https://phosphoricons.com) (MIT).
+MIT. See [LICENSE](LICENSE). Icons from [Phosphor](https://phosphoricons.com) (MIT).
