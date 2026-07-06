@@ -1,7 +1,7 @@
 /**
  * HSV sunburst favicon — sharp wedges, full saturation, no white center.
  * Matches the picker's hue slider (HSV s=1 v=1) so yellow→green stays vivid.
- * Run: node scripts/generate-favicon.mjs
+ * Outputs to demo/public/favicon.svg (overwrites — back up custom art first).
  */
 import { writeFileSync } from 'node:fs'
 import { converter, formatHex } from 'culori'
@@ -45,5 +45,5 @@ ${paths.join('\n')}
 </svg>
 `
 
-writeFileSync(new URL('../demo/favicon.svg', import.meta.url), svg)
+writeFileSync(new URL('../demo/public/favicon.svg', import.meta.url), svg)
 console.log(`favicon.svg — ${wedges} HSV wedges, ${svg.length} bytes`)
