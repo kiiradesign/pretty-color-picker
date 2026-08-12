@@ -6,7 +6,7 @@ Native **Web Component**. Works in any framework or plain HTML.
 
 **[Live demo](https://colors.kiira.in)** · **[npm](https://www.npmjs.com/package/pretty-color-picker)** · **[GitHub](https://github.com/kiiradesign/pretty-color-picker)**
 
-![Pretty Color Picker](./demo/public/pcp-opengraph.png)
+![Pretty Color Picker](./docs/pcp-preview.png)
 
 The design and interactions are inspired by [DialKit](https://joshpuckett.me/dialkit). I'm considering contributing this component upstream.
 
