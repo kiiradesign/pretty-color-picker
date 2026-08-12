@@ -874,7 +874,9 @@ export class PrettyColorPicker extends HTMLElement {
       this.#refreshAlphaField()
       return
     }
-    this.#setColor(normalizeOklch({ ...this.#color, alpha: n / 100 }), true)
+    const alpha = Math.min(1, Math.max(0, n / 100))
+    this.#setColor(normalizeOklch({ ...this.#color, alpha }), true)
+    this.#updateSliderHandle(this.#alphaHandle, alpha, 'alpha')
     this.#commitHistory()
   }
 
@@ -985,6 +987,7 @@ export class PrettyColorPicker extends HTMLElement {
       syncPlaneHue: false,
     })
     this.#alphaInput.value = `${Math.round(nextPct)}%`
+    this.#updateSliderHandle(this.#alphaHandle, alpha, 'alpha')
   }
 
   #bindAlphaInputScrub(): () => void {
@@ -994,6 +997,7 @@ export class PrettyColorPicker extends HTMLElement {
       onEnd: () => {
         this.#commitHistory()
         this.#refreshAlphaField()
+        this.#refreshSliders()
       },
     })
   }
