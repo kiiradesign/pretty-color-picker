@@ -327,7 +327,7 @@ export class PrettyColorPicker extends HTMLElement {
         </header>
         <div class="pcp-plane-wrap">
           <div class="pcp-plane-surface pcp-clip">
-            <canvas class="pcp-plane" width="240" height="180" aria-label="Color plane"></canvas>
+            <canvas class="pcp-plane" width="240" height="240" aria-label="Color plane"></canvas>
           </div>
           <div class="pcp-cursor" aria-hidden="true"></div>
         </div>

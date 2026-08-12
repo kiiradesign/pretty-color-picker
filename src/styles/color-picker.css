@@ -325,7 +325,7 @@
 .pcp-plane-wrap {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1;
   margin-bottom: 0;
   cursor: crosshair;
   touch-action: none;
