@@ -27,8 +27,9 @@
   --pcp-field-value-size: 11px;
   --pcp-field-value-line: 15px;
   --pcp-field-input-height: 28px;
-  --pcp-input-panel-height: var(--pcp-field-input-height);
-  --pcp-input-row-padding-y: 4px;
+  /* Swatch matches hue/alpha dial size and left edge */
+  --pcp-input-panel-height: var(--pcp-slider-height);
+  --pcp-input-row-padding-y: 0;
   --pcp-input-row-padding-x: 7px;
   --pcp-alpha-col-width: 4ch;
   /* Equal value columns — flex to tray width; alpha col 6 stays fixed at 4ch */
@@ -261,6 +262,7 @@
   box-shadow: var(--pcp-elevation);
   padding: var(--pcp-panel-padding);
   user-select: none;
+  overflow: visible;
 }
 
 .pcp-header {
@@ -519,7 +521,7 @@
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
   grid-template-columns:
     var(--pcp-input-panel-height)
     var(--pcp-swatch-code-gap)
@@ -530,18 +532,77 @@
   column-gap: 3px;
   align-items: center;
   margin-bottom: 0;
-  padding: var(--pcp-input-row-padding-y) var(--pcp-input-row-padding-x);
+  /* Flush swatch to left (aligns with dials); pad only the value side */
+  padding: var(--pcp-input-row-padding-y) var(--pcp-input-row-padding-x)
+    var(--pcp-input-row-padding-y) 0;
+  min-height: var(--pcp-slider-height);
   background: var(--pcp-surface);
-  border-radius: var(--pcp-radius-sm);
+  border-radius: var(--pcp-radius);
 }
 
 .pcp-swatch {
   grid-column: 1;
   flex-shrink: 0;
-  width: var(--pcp-input-panel-height);
-  height: var(--pcp-input-panel-height);
-  --pcp-clip-radius: var(--pcp-radius-sm);
+  width: var(--pcp-slider-height);
+  height: var(--pcp-slider-height);
+  padding: 0;
+  border: none;
+  background: none;
   position: relative;
+  cursor: pointer;
+}
+
+.pcp-swatch-surface {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  /* Match dial track radius */
+  --pcp-clip-radius: var(--pcp-radius);
+}
+
+.pcp-swatch:focus-visible {
+  outline: 2px solid var(--pcp-focus-ring);
+  outline-offset: 2px;
+}
+
+.pcp-swatch:active .pcp-swatch-surface {
+  transform: scale(0.97);
+}
+
+/*
+ * Copy confirmation — DialKit surface language (panel bg + border + label type),
+ * anchored below the color-code tray under the swatch.
+ */
+.pcp-swatch-tooltip {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 5;
+  padding: 5px 8px;
+  border-radius: var(--pcp-radius);
+  border: 1px solid var(--pcp-border);
+  background: var(--pcp-bg);
+  color: var(--pcp-text-primary);
+  font-family: var(--pcp-font);
+  font-size: var(--pcp-tab-font-size);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  transform: translateY(-2px) scale(0.97);
+  transform-origin: left top;
+  transition:
+    opacity 125ms ease-out,
+    transform 125ms ease-out;
+}
+
+.pcp-swatch-tooltip.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .pcp-fields {
@@ -724,12 +785,14 @@
   .pcp-tabs-pill,
   .pcp-cursor,
   .pcp-slider-handle,
-  .pcp-history-swatch {
+  .pcp-history-swatch,
+  .pcp-swatch-tooltip {
     transition: none;
   }
 
   .pcp-tab:active,
-  .pcp-header-btn:active {
+  .pcp-header-btn:active,
+  .pcp-swatch:active .pcp-swatch-surface {
     transform: none;
   }
 }

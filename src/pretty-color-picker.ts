@@ -17,6 +17,7 @@ import {
   oklchToCss,
   oklchToHex,
   oklchToRgb,
+  oklchToRgbString,
   parseFormatFields,
   planePositionFromColor,
   rgbAtHueSlider,
@@ -81,13 +82,16 @@ export class PrettyColorPicker extends HTMLElement {
   #alphaHandle!: HTMLElement
   #tabsPill!: HTMLElement
   #fieldsContainer!: HTMLElement
+  #swatchBtn!: HTMLButtonElement
   #swatchFill!: HTMLElement
+  #swatchTooltip!: HTMLElement
   #alphaInput!: HTMLInputElement
   #historyContainer!: HTMLElement
   #historySection!: HTMLElement
   #themeToggleBtn: HTMLButtonElement | null = null
   #headerButtonCleanup: (() => void) | null = null
   #movableCleanup: (() => void) | null = null
+  #copyTooltipTimer: ReturnType<typeof setTimeout> | null = null
   #popoverCleanup: (() => void) | null = null
   #anchorEl: HTMLElement | null = null
   #renderedPlaneHue: number | null = null
@@ -348,9 +352,12 @@ export class PrettyColorPicker extends HTMLElement {
           </div>
         </div>
         <div class="pcp-inputs">
-          <div class="pcp-swatch pcp-clip" aria-hidden="true">
-            <span class="pcp-swatch-fill"></span>
-          </div>
+          <button type="button" class="pcp-swatch" aria-label="Copy color">
+            <span class="pcp-swatch-surface pcp-clip">
+              <span class="pcp-swatch-fill"></span>
+            </span>
+            <span class="pcp-swatch-tooltip" role="status" aria-live="polite">Copied</span>
+          </button>
           <div class="pcp-fields"></div>
           <div class="pcp-field pcp-alpha-field">
             <input class="pcp-field-input pcp-alpha-input" type="text" inputmode="numeric" value="80%" aria-label="Opacity" />
@@ -372,7 +379,9 @@ export class PrettyColorPicker extends HTMLElement {
     this.#alphaHandle = this.#alphaRow.querySelector('.pcp-slider-handle')!
     this.#tabsPill = this.#shadow.querySelector('.pcp-tabs-pill')!
     this.#fieldsContainer = this.#shadow.querySelector('.pcp-fields')!
+    this.#swatchBtn = this.#shadow.querySelector('.pcp-swatch')!
     this.#swatchFill = this.#shadow.querySelector('.pcp-swatch-fill')!
+    this.#swatchTooltip = this.#shadow.querySelector('.pcp-swatch-tooltip')!
     this.#alphaInput = this.#shadow.querySelector('.pcp-alpha-input')!
     this.#historySection = this.#shadow.querySelector('.pcp-history-section')!
     this.#historyContainer = this.#shadow.querySelector('.pcp-history')!
@@ -435,8 +444,86 @@ export class PrettyColorPicker extends HTMLElement {
 
     this.#cleanups.push(this.#bindAlphaInputScrub())
 
+    const onSwatchCopy = () => {
+      void this.#copyColorCode()
+    }
+    this.#swatchBtn.addEventListener('click', onSwatchCopy)
+    this.#cleanups.push(() => {
+      this.#swatchBtn.removeEventListener('click', onSwatchCopy)
+      if (this.#copyTooltipTimer != null) {
+        clearTimeout(this.#copyTooltipTimer)
+        this.#copyTooltipTimer = null
+      }
+    })
+
     this.#syncMovable()
     this.#syncHistorySection()
+  }
+
+  #clipboardColorCode(): string {
+    switch (this.#format) {
+      case 'hex':
+        return oklchToHex(this.#color).toUpperCase()
+      case 'rgb':
+        return oklchToRgbString(this.#color)
+      case 'hsl': {
+        const fields = formatFieldsFor(this.#color, 'hsl')
+        const h = fields.find((f) => f.key === 'h')?.value ?? '0'
+        const s = fields.find((f) => f.key === 's')?.value ?? '0'
+        const l = fields.find((f) => f.key === 'l')?.value ?? '0'
+        if (this.#color.alpha < 1) {
+          return `hsla(${h}, ${s}%, ${l}%, ${this.#color.alpha.toFixed(2)})`
+        }
+        return `hsl(${h}, ${s}%, ${l}%)`
+      }
+      case 'oklch':
+        return oklchToCss(this.#color)
+    }
+  }
+
+  async #copyColorCode(): Promise<void> {
+    const value = this.#clipboardColorCode()
+    if (await this.#writeClipboard(value)) this.#showCopiedTooltip()
+  }
+
+  async #writeClipboard(value: string): Promise<boolean> {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(value)
+        return true
+      }
+    } catch {
+      // Fall through to execCommand fallback.
+    }
+
+    try {
+      const ta = document.createElement('textarea')
+      ta.value = value
+      ta.setAttribute('readonly', '')
+      ta.style.position = 'fixed'
+      ta.style.top = '0'
+      ta.style.left = '0'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.focus()
+      ta.select()
+      const ok = document.execCommand('copy')
+      document.body.removeChild(ta)
+      return ok
+    } catch {
+      return false
+    }
+  }
+
+  #showCopiedTooltip(): void {
+    this.#swatchTooltip.classList.add('is-visible')
+    this.#swatchBtn.setAttribute('aria-label', 'Copied')
+    if (this.#copyTooltipTimer != null) clearTimeout(this.#copyTooltipTimer)
+    this.#copyTooltipTimer = setTimeout(() => {
+      this.#swatchTooltip.classList.remove('is-visible')
+      this.#swatchBtn.setAttribute('aria-label', 'Copy color')
+      this.#copyTooltipTimer = null
+    }, 1500)
   }
 
   #handleClose(): void {
