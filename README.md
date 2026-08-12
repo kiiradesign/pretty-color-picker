@@ -17,7 +17,7 @@ A full DialKit-aligned UI pass:
 - Format tabs (**HEX / RGB / HSL / OKLCH**) live in the header; optional close or theme control on the right
 - Square saturation × value plane with a **hairline** loupe (Geist/DialKit 1px stroke — not a thick Chrome-style ring)
 - Hue and alpha dials at a consistent 36px height with thin contrast thumbs
-- Color preview swatch sized and aligned with those dials — click it to copy the active format; a **Copied** chip appears just below the panel
+- Color preview swatch sized and aligned with those dials — separate from the value tray, with the same gap as between dials; click it to copy the active format; a **Copied** chip appears just below the panel
 - Compact value inputs with drag-to-scrub (no redundant field labels)
 - Title-free Last Used history grid
 
@@ -26,7 +26,7 @@ A full DialKit-aligned UI pass:
 - Format tabs (**HEX / RGB / HSL / OKLCH**) as the panel header, with optional close or theme control on the right
 - Saturation × value color plane with a hairline, edge-visible loupe
 - Hue and alpha dials with DialKit-style contrast thumbs
-- Preview swatch flush with the dials — click to copy the current color code (tooltip below the picker)
+- Preview swatch flush with the dials, separate from the value tray — click to copy the current color code (tooltip below the picker)
 - Compact value inputs with drag-to-scrub (no redundant field labels)
 - Last Used swatch history (title-free grid)
 - **Popover** mode (anchored to a trigger), movable panel, light / dark / system themes, Shadow DOM

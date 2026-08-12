@@ -351,16 +351,18 @@ export class PrettyColorPicker extends HTMLElement {
             <div class="pcp-slider-handle"></div>
           </div>
         </div>
-        <div class="pcp-inputs">
+        <div class="pcp-values-row">
           <button type="button" class="pcp-swatch" aria-label="Copy color">
             <span class="pcp-swatch-surface pcp-clip">
               <span class="pcp-swatch-fill"></span>
             </span>
             <span class="pcp-swatch-tooltip" role="status" aria-live="polite">Copied</span>
           </button>
-          <div class="pcp-fields"></div>
-          <div class="pcp-field pcp-alpha-field">
-            <input class="pcp-field-input pcp-alpha-input" type="text" inputmode="numeric" value="80%" aria-label="Opacity" />
+          <div class="pcp-inputs">
+            <div class="pcp-fields"></div>
+            <div class="pcp-field pcp-alpha-field">
+              <input class="pcp-field-input pcp-alpha-input" type="text" inputmode="numeric" value="80%" aria-label="Opacity" />
+            </div>
           </div>
         </div>
         <div class="pcp-history-section">

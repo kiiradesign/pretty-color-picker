@@ -29,12 +29,12 @@
   --pcp-field-input-height: 28px;
   /* Swatch matches hue/alpha dial size and left edge */
   --pcp-input-panel-height: var(--pcp-slider-height);
-  --pcp-input-row-padding-y: 0;
-  --pcp-input-row-padding-x: 7px;
+  --pcp-input-row-padding-y: 4px;
+  --pcp-input-row-padding-x: 8px;
   --pcp-alpha-col-width: 4ch;
-  /* Equal value columns — flex to tray width; alpha col 6 stays fixed at 4ch */
+  /* Equal value columns — flex to tray width; alpha col stays fixed at 4ch */
   --pcp-value-col-width: minmax(0, 1fr);
-  --pcp-swatch-code-gap: 8px;
+  --pcp-swatch-code-gap: var(--pcp-section-gap);
   --pcp-history-gap: 6px;
   --pcp-checker-size: 6px;
   --pcp-loupe-size: 14px;
@@ -517,33 +517,16 @@
   }
 }
 
-/* One grid for every color mode — alpha column 6 never changes position or width */
-.pcp-inputs {
-  display: grid;
+/* Swatch + value tray — separate surfaces with a clear gap */
+.pcp-values-row {
+  display: flex;
+  align-items: center;
+  gap: var(--pcp-swatch-code-gap);
   width: 100%;
   min-width: 0;
-  box-sizing: border-box;
-  overflow: visible;
-  grid-template-columns:
-    var(--pcp-input-panel-height)
-    var(--pcp-swatch-code-gap)
-    var(--pcp-value-col-width)
-    var(--pcp-value-col-width)
-    var(--pcp-value-col-width)
-    var(--pcp-alpha-col-width);
-  column-gap: 3px;
-  align-items: center;
-  margin-bottom: 0;
-  /* Flush swatch to left (aligns with dials); pad only the value side */
-  padding: var(--pcp-input-row-padding-y) var(--pcp-input-row-padding-x)
-    var(--pcp-input-row-padding-y) 0;
-  min-height: var(--pcp-slider-height);
-  background: var(--pcp-surface);
-  border-radius: var(--pcp-radius);
 }
 
 .pcp-swatch {
-  grid-column: 1;
   flex-shrink: 0;
   width: var(--pcp-slider-height);
   height: var(--pcp-slider-height);
@@ -609,8 +592,29 @@
   transform: translateY(0) scale(1);
 }
 
+/* Value tray — format fields + alpha only */
+.pcp-inputs {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  grid-template-columns:
+    var(--pcp-value-col-width)
+    var(--pcp-value-col-width)
+    var(--pcp-value-col-width)
+    var(--pcp-alpha-col-width);
+  column-gap: 3px;
+  align-items: center;
+  margin-bottom: 0;
+  padding: var(--pcp-input-row-padding-y) var(--pcp-input-row-padding-x);
+  min-height: var(--pcp-slider-height);
+  background: var(--pcp-surface);
+  border-radius: var(--pcp-radius);
+}
+
 .pcp-fields {
-  grid-column: 3 / 6;
+  grid-column: 1 / 4;
   display: grid;
   min-width: 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -667,7 +671,7 @@
 }
 
 .pcp-alpha-field {
-  grid-column: 6;
+  grid-column: 4;
   box-sizing: border-box;
   width: var(--pcp-alpha-col-width);
   min-width: var(--pcp-alpha-col-width);
