@@ -6,13 +6,13 @@ Native **Web Component**. Works in any framework or plain HTML.
 
 **[Live demo](https://colors.kiira.in)** · **[npm](https://www.npmjs.com/package/pretty-color-picker)** · **[GitHub](https://github.com/kiiradesign/pretty-color-picker)**
 
-![Pretty Color Picker demo](./docs/pcp.gif)
+![Pretty Color Picker](./demo/public/pcp-opengraph.png)
 
 The design and interactions are inspired by [DialKit](https://joshpuckett.me/dialkit). I'm considering contributing this component upstream.
 
-## What's new in 0.2
+## What's new in 1.0
 
-A full DialKit-aligned UI pass:
+First stable release — DialKit-aligned UI, locked in as the v1 design:
 
 - Format tabs (**HEX / RGB / HSL / OKLCH**) live in the header; optional close or theme control on the right
 - Square saturation × value plane with a **hairline** loupe (Geist/DialKit 1px stroke — not a thick Chrome-style ring)
@@ -33,7 +33,7 @@ A full DialKit-aligned UI pass:
 
 ## Install
 
-Published on npm as [`pretty-color-picker`](https://www.npmjs.com/package/pretty-color-picker) (v0.2.0).
+Published on npm as [`pretty-color-picker`](https://www.npmjs.com/package/pretty-color-picker) (v1.0.0).
 
 ```bash
 npm install pretty-color-picker
