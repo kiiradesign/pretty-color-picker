@@ -14,6 +14,10 @@
       var(--pcp-history-cols)
   );
   --pcp-control-height: var(--pcp-history-swatch-size);
+  /* Hue / alpha dials — DialKit row height */
+  --pcp-slider-height: 36px;
+  --pcp-slider-handle-width: 3px;
+  --pcp-slider-handle-height: 20px;
   --pcp-tab-row-height: 28px;
   --pcp-field-value-size: 11px;
   --pcp-field-value-line: 15px;
@@ -355,7 +359,7 @@
 
 .pcp-slider-wrapper {
   position: relative;
-  height: var(--pcp-control-height);
+  height: var(--pcp-slider-height);
   margin-bottom: 0;
   overflow: visible;
 }
@@ -373,7 +377,7 @@
 .pcp-slider-track {
   position: absolute;
   inset: 0;
-  --pcp-clip-radius: var(--pcp-radius-sm);
+  --pcp-clip-radius: var(--pcp-radius);
   pointer-events: none;
 }
 
@@ -425,27 +429,23 @@
   top: 50%;
   left: 0;
   z-index: 2;
-  width: var(--pcp-loupe-size);
-  height: var(--pcp-loupe-size);
-  border: 2px solid var(--pcp-cursor-ring);
+  width: var(--pcp-slider-handle-width);
+  height: var(--pcp-slider-handle-height);
+  border: none;
   outline: none;
-  border-radius: 50%;
-  background-color: transparent;
+  border-radius: 999px;
+  background-color: var(--pcp-slider-handle);
   pointer-events: none;
-  transform: translate(-50%, -50%);
-  box-shadow:
-    0 0 0 1px var(--pcp-cursor-outline),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.12);
-  filter: none;
+  transform: translateY(-50%);
   opacity: 1;
-  transition: box-shadow 120ms ease;
+  box-shadow: none;
+  filter: none;
+  transition: background-color 120ms ease;
 }
 
 .pcp-slider-handle[data-dragging='true'] {
-  box-shadow:
-    0 0 0 1px var(--pcp-cursor-outline),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.12),
-    0 1px 4px rgba(0, 0, 0, 0.28);
+  /* Keep solid — DialKit handles don’t fade on drag */
+  opacity: 1;
 }
 
 .pcp-tabs {

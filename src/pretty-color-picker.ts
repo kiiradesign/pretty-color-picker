@@ -19,8 +19,15 @@ import {
   oklchToRgb,
   parseFormatFields,
   planePositionFromColor,
+  rgbAtHueSlider,
 } from './color/conversions'
 import { colorsEqual, loadHistory, saveToHistory } from './utils/history'
+import {
+  compositeOverChecker,
+  parseHexColor,
+  sliderHandleStyleForRgb,
+  type Rgb255,
+} from './utils/contrast'
 import { bindInputValueScrub, bindPointerDrag } from './utils/pointer'
 import { bindPanelDrag, centerPanel } from './utils/panel-drag'
 import { positionPopover, resolveAnchor } from './utils/popover'
@@ -687,16 +694,40 @@ export class PrettyColorPicker extends HTMLElement {
 
   #setSliderHandlePosition(handle: HTMLElement, t: number): void {
     const pct = Math.max(0, Math.min(1, t)) * 100
-    handle.style.left = `${pct}%`
+    // Center the 3px DialKit-style pill on the value
+    handle.style.left = `max(0px, calc(${pct}% - 1.5px))`
+  }
+
+  #getCheckerColors(): { base: Rgb255; tone: Rgb255 } {
+    const style = getComputedStyle(this)
+    const base =
+      parseHexColor(style.getPropertyValue('--pcp-checker-base').trim()) ?? { r: 255, g: 255, b: 255 }
+    const tone =
+      parseHexColor(style.getPropertyValue('--pcp-checker-tone').trim()) ?? { r: 204, g: 204, b: 204 }
+    return { base, tone }
   }
 
   #parseHandleT(handle: HTMLElement, fallback: number): number {
-    const match = handle.style.left.match(/([\d.]+)%/)
+    const match = handle.style.left.match(/calc\(([\d.]+)%/)
     return match ? parseFloat(match[1]!) / 100 : fallback
   }
 
-  #updateSliderHandle(handle: HTMLElement, t: number, _kind: 'hue' | 'alpha'): void {
+  #sampleSliderBackground(t: number, kind: 'hue' | 'alpha'): Rgb255 {
+    if (kind === 'hue') return rgbAtHueSlider(t)
+    const { base, tone } = this.#getCheckerColors()
+    return compositeOverChecker(oklchToRgb(this.#color), t, base, tone)
+  }
+
+  #updateSliderHandleColor(handle: HTMLElement, t: number, kind: 'hue' | 'alpha'): void {
+    const sample = this.#sampleSliderBackground(t, kind)
+    const { backgroundColor, boxShadow } = sliderHandleStyleForRgb(sample.r, sample.g, sample.b)
+    handle.style.backgroundColor = backgroundColor
+    handle.style.boxShadow = boxShadow
+  }
+
+  #updateSliderHandle(handle: HTMLElement, t: number, kind: 'hue' | 'alpha'): void {
     this.#setSliderHandlePosition(handle, t)
+    this.#updateSliderHandleColor(handle, t, kind)
   }
 
   #onPlaneMove(x: number, y: number): void {
@@ -737,7 +768,7 @@ export class PrettyColorPicker extends HTMLElement {
 
   #readHueFromSlider(): number {
     const left = this.#hueHandle.style.left
-    const match = left.match(/([\d.]+)%/)
+    const match = left.match(/calc\(([\d.]+)%/)
     if (match) return (parseFloat(match[1]!) / 100) * 360
     return this.#activePlaneHue
   }
@@ -991,12 +1022,22 @@ export class PrettyColorPicker extends HTMLElement {
   #refreshSliders(): void {
     const hue = this.#planeHue()
     const hueT = hue / 360
-    this.#updateSliderHandle(this.#hueHandle, hueT, 'hue')
+
+    if (this.#hueHandle.hasAttribute('data-dragging')) {
+      this.#updateSliderHandleColor(this.#hueHandle, hueT, 'hue')
+    } else {
+      this.#updateSliderHandle(this.#hueHandle, hueT, 'hue')
+    }
 
     const alphaT = this.#alphaHandle.hasAttribute('data-dragging')
       ? this.#parseHandleT(this.#alphaHandle, this.#color.alpha)
       : this.#color.alpha
-    this.#updateSliderHandle(this.#alphaHandle, alphaT, 'alpha')
+
+    if (this.#alphaHandle.hasAttribute('data-dragging')) {
+      this.#updateSliderHandleColor(this.#alphaHandle, alphaT, 'alpha')
+    } else {
+      this.#updateSliderHandle(this.#alphaHandle, alphaT, 'alpha')
+    }
 
     this.#refreshAlphaSlider()
   }

@@ -14,7 +14,7 @@ The design and interactions are inspired by [DialKit](https://joshpuckett.me/dia
 
 - Format tabs (**HEX / RGB / HSL / OKLCH**) as the panel header, with optional close or theme control on the right
 - Saturation × value color plane with an edge-visible loupe handle
-- Hue and alpha sliders with matching circular loupe thumbs
+- Hue and alpha sliders with DialKit-style contrast thumbs
 - Compact value inputs with drag-to-scrub (no redundant field labels)
 - Last Used swatch history (title-free grid)
 - **Popover** mode (anchored to a trigger), movable panel, light / dark / system themes, Shadow DOM
