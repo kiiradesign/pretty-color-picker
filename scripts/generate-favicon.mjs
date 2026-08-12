@@ -1,7 +1,7 @@
 /**
- * HSV sunburst favicon — sharp wedges, full saturation, no white center.
- * Matches the picker's hue slider (HSV s=1 v=1) so yellow→green stays vivid.
- * Outputs to demo/public/favicon.svg (overwrites — back up custom art first).
+ * Procedural HSV sunburst favicon generator (legacy).
+ * The live favicon is hand-authored art at demo/public/favicon.svg —
+ * running this script will overwrite it. Prefer editing that SVG directly.
  */
 import { writeFileSync } from 'node:fs'
 import { converter, formatHex } from 'culori'

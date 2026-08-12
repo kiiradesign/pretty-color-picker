@@ -37,7 +37,7 @@
   --pcp-swatch-code-gap: 8px;
   --pcp-history-gap: 6px;
   --pcp-checker-size: 6px;
-  --pcp-loupe-size: 13px;
+  --pcp-loupe-size: 14px;
   --pcp-field-input-radius: var(--pcp-radius-sm);
   --pcp-icon-button-size: 26px;
   --pcp-icon-button-radius: var(--pcp-radius-sm);
@@ -352,11 +352,13 @@
   width: var(--pcp-loupe-size);
   height: var(--pcp-loupe-size);
   margin: calc(var(--pcp-loupe-size) / -2) 0 0 calc(var(--pcp-loupe-size) / -2);
-  border: 2px solid var(--pcp-cursor-ring);
+  /* Hairline ring — Geist/DialKit 1px strokes, not Chrome's thick loupe */
+  border: none;
   border-radius: 50%;
+  background: transparent;
   box-shadow:
     0 0 0 1px var(--pcp-cursor-outline),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+    inset 0 0 0 1px var(--pcp-cursor-ring);
   pointer-events: none;
 }
 
@@ -571,13 +573,15 @@
 }
 
 /*
- * Copy confirmation — DialKit surface language (panel bg + border + label type),
- * anchored below the color-code tray under the swatch.
+ * Copy confirmation — DialKit surface language (panel bg + border + label type).
+ * Floats below the whole panel, flush with its left edge — not cramped under the tray.
  */
 .pcp-swatch-tooltip {
   position: absolute;
-  left: 0;
-  top: calc(100% + 6px);
+  /* Panel content inset; pull back so the chip lines up with the picker edge */
+  left: calc(-1 * var(--pcp-panel-padding));
+  /* Clear remaining panel padding under the tray, then a tight breath of air */
+  top: calc(100% + var(--pcp-panel-padding) + 6px);
   z-index: 5;
   padding: 5px 8px;
   border-radius: var(--pcp-radius);
