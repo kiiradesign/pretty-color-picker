@@ -4,7 +4,8 @@ export function bindPanelDrag(handle: HTMLElement, panel: HTMLElement): () => vo
   const onPointerDown = (event: PointerEvent) => {
     if (event.button !== 0) return
     const target = event.target as HTMLElement
-    if (target.closest('.pcp-header-btn')) return
+    // Don't start a panel drag from the close/theme control or format tabs.
+    if (target.closest('.pcp-header-btn, .pcp-tabs')) return
 
     event.preventDefault()
 

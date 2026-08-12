@@ -63,7 +63,7 @@ export declare class PrettyColorPicker extends HTMLElement {
     set theme(value: PickerTheme);
     get headerAction(): PickerHeaderAction;
     set headerAction(value: PickerHeaderAction);
-    /** Panel header title. Default `Pretty Color Picker`. Set `label=""` to hide. */
+    /** Accessible name for the picker. Default `Pretty Color Picker`. Set `label=""` to clear. */
     get label(): string;
     set label(value: string);
     get movable(): boolean;

@@ -66,6 +66,89 @@ export function bindHorizontalScrub(
   }
 }
 
+/**
+ * Scrub a text input by dragging horizontally.
+ * Click still focuses for typing; scrubbing starts after a small move threshold.
+ */
+export function bindInputValueScrub(
+  input: HTMLInputElement,
+  callbacks: {
+    onDelta: (deltaX: number, event: PointerEvent) => void
+    onStart?: (event: PointerEvent) => void
+    onEnd?: (event: PointerEvent) => void
+  },
+  threshold = 3,
+): () => void {
+  let tracking = false
+  let scrubbing = false
+  let startClientX = 0
+  let lastClientX = 0
+
+  const handleMove = (event: PointerEvent) => {
+    if (!tracking) return
+
+    if (!scrubbing) {
+      if (Math.abs(event.clientX - startClientX) < threshold) return
+      scrubbing = true
+      input.blur()
+      input.setAttribute('data-scrubbing', 'true')
+      document.body.style.cursor = 'ew-resize'
+      callbacks.onStart?.(event)
+      lastClientX = event.clientX
+      return
+    }
+
+    const deltaX = event.clientX - lastClientX
+    lastClientX = event.clientX
+    if (deltaX === 0) return
+    callbacks.onDelta(deltaX, event)
+  }
+
+  const handleUp = (event: PointerEvent) => {
+    if (!tracking) return
+    const wasScrubbing = scrubbing
+    tracking = false
+    scrubbing = false
+    if (event.pointerId != null) {
+      try {
+        input.releasePointerCapture(event.pointerId)
+      } catch {
+        // ignore
+      }
+    }
+    window.removeEventListener('pointermove', handleMove)
+    window.removeEventListener('pointerup', handleUp)
+    window.removeEventListener('pointercancel', handleUp)
+    if (wasScrubbing) {
+      input.removeAttribute('data-scrubbing')
+      document.body.style.cursor = ''
+      callbacks.onEnd?.(event)
+    }
+  }
+
+  const handleDown = (event: PointerEvent) => {
+    if (event.button !== 0) return
+    tracking = true
+    scrubbing = false
+    startClientX = event.clientX
+    lastClientX = event.clientX
+    input.setPointerCapture(event.pointerId)
+    window.addEventListener('pointermove', handleMove)
+    window.addEventListener('pointerup', handleUp)
+    window.addEventListener('pointercancel', handleUp)
+  }
+
+  input.addEventListener('pointerdown', handleDown)
+
+  return () => {
+    input.removeEventListener('pointerdown', handleDown)
+    window.removeEventListener('pointermove', handleMove)
+    window.removeEventListener('pointerup', handleUp)
+    window.removeEventListener('pointercancel', handleUp)
+    input.removeAttribute('data-scrubbing')
+  }
+}
+
 export function bindPointerDrag(
   element: HTMLElement,
   onMove: (x: number, y: number) => void,

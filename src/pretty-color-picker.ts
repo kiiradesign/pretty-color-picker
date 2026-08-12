@@ -19,16 +19,9 @@ import {
   oklchToRgb,
   parseFormatFields,
   planePositionFromColor,
-  rgbAtHueSlider,
 } from './color/conversions'
 import { colorsEqual, loadHistory, saveToHistory } from './utils/history'
-import {
-  compositeOverChecker,
-  sliderHandleStyleForRgb,
-  parseHexColor,
-  type Rgb255,
-} from './utils/contrast'
-import { bindHorizontalScrub, bindPointerDrag } from './utils/pointer'
+import { bindInputValueScrub, bindPointerDrag } from './utils/pointer'
 import { bindPanelDrag, centerPanel } from './utils/panel-drag'
 import { positionPopover, resolveAnchor } from './utils/popover'
 import {
@@ -85,7 +78,6 @@ export class PrettyColorPicker extends HTMLElement {
   #alphaInput!: HTMLInputElement
   #historyContainer!: HTMLElement
   #historySection!: HTMLElement
-  #titleEl!: HTMLElement
   #themeToggleBtn: HTMLButtonElement | null = null
   #headerButtonCleanup: (() => void) | null = null
   #movableCleanup: (() => void) | null = null
@@ -157,7 +149,7 @@ export class PrettyColorPicker extends HTMLElement {
       this.#syncHeaderButton()
     }
     if (name === 'label') {
-      this.#syncTitleLabel()
+      this.#syncAriaLabel()
     }
   }
 
@@ -203,7 +195,7 @@ export class PrettyColorPicker extends HTMLElement {
     this.setAttribute('header-action', value)
   }
 
-  /** Panel header title. Default `Pretty Color Picker`. Set `label=""` to hide. */
+  /** Accessible name for the picker. Default `Pretty Color Picker`. Set `label=""` to clear. */
   get label(): string {
     const value = this.getAttribute('label')
     if (value === null) return DEFAULT_PICKER_LABEL
@@ -320,28 +312,33 @@ export class PrettyColorPicker extends HTMLElement {
       <style>${styles}</style>
       <div class="pcp" part="container">
         <header class="pcp-header">
-          <h2 class="pcp-title" part="title"></h2>
+          <div class="pcp-tabs" role="tablist" part="tabs">
+            <div class="pcp-tabs-pill"></div>
+            ${FORMATS.map((f) => `<button type="button" class="pcp-tab" role="tab" data-format="${f}">${FORMAT_LABELS[f]}</button>`).join('')}
+          </div>
           ${headerButton}
         </header>
-        <div class="pcp-plane-wrap pcp-clip">
-          <canvas class="pcp-plane" width="240" height="180" aria-label="Color plane"></canvas>
+        <div class="pcp-plane-wrap">
+          <div class="pcp-plane-surface pcp-clip">
+            <canvas class="pcp-plane" width="240" height="180" aria-label="Color plane"></canvas>
+          </div>
           <div class="pcp-cursor" aria-hidden="true"></div>
         </div>
         <div class="pcp-slider-wrapper">
-          <div class="pcp-slider pcp-clip pcp-hue-row" aria-label="Hue">
-            <div class="pcp-slider-fill pcp-slider-fill-hue"></div>
+          <div class="pcp-slider pcp-hue-row" aria-label="Hue">
+            <div class="pcp-slider-track pcp-clip">
+              <div class="pcp-slider-fill pcp-slider-fill-hue"></div>
+            </div>
             <div class="pcp-slider-handle"></div>
           </div>
         </div>
         <div class="pcp-slider-wrapper">
-          <div class="pcp-slider pcp-clip pcp-alpha-row" aria-label="Opacity">
-            <div class="pcp-slider-fill pcp-slider-fill-alpha"></div>
+          <div class="pcp-slider pcp-alpha-row" aria-label="Opacity">
+            <div class="pcp-slider-track pcp-clip">
+              <div class="pcp-slider-fill pcp-slider-fill-alpha"></div>
+            </div>
             <div class="pcp-slider-handle"></div>
           </div>
-        </div>
-        <div class="pcp-tabs" role="tablist">
-          <div class="pcp-tabs-pill"></div>
-          ${FORMATS.map((f) => `<button type="button" class="pcp-tab" role="tab" data-format="${f}">${FORMAT_LABELS[f]}</button>`).join('')}
         </div>
         <div class="pcp-inputs">
           <div class="pcp-swatch pcp-clip" aria-hidden="true">
@@ -349,12 +346,10 @@ export class PrettyColorPicker extends HTMLElement {
           </div>
           <div class="pcp-fields"></div>
           <div class="pcp-field pcp-alpha-field">
-            <span class="pcp-field-label">A</span>
             <input class="pcp-field-input pcp-alpha-input" type="text" inputmode="numeric" value="80%" aria-label="Opacity" />
           </div>
         </div>
         <div class="pcp-history-section">
-          <p class="pcp-history-label">Last Used</p>
           <div class="pcp-history"></div>
         </div>
       </div>
@@ -374,8 +369,7 @@ export class PrettyColorPicker extends HTMLElement {
     this.#alphaInput = this.#shadow.querySelector('.pcp-alpha-input')!
     this.#historySection = this.#shadow.querySelector('.pcp-history-section')!
     this.#historyContainer = this.#shadow.querySelector('.pcp-history')!
-    this.#titleEl = this.#shadow.querySelector('.pcp-title')!
-    this.#syncTitleLabel()
+    this.#syncAriaLabel()
     this.#themeToggleBtn = this.#shadow.querySelector('.pcp-theme-toggle')
     this.#updateThemeToggleButton()
   }
@@ -432,7 +426,7 @@ export class PrettyColorPicker extends HTMLElement {
       if (e.key === 'Enter') this.#onAlphaInput()
     })
 
-    this.#cleanups.push(this.#bindAlphaLabelScrub())
+    this.#cleanups.push(this.#bindAlphaInputScrub())
 
     this.#syncMovable()
     this.#syncHistorySection()
@@ -542,16 +536,13 @@ export class PrettyColorPicker extends HTMLElement {
     this.#refreshHistory()
   }
 
-  #syncTitleLabel(): void {
-    if (!this.#titleEl) return
+  #syncAriaLabel(): void {
     const explicit = this.getAttribute('label')
     if (explicit === '') {
-      this.#titleEl.hidden = true
-      this.#titleEl.textContent = ''
+      this.removeAttribute('aria-label')
       return
     }
-    this.#titleEl.hidden = false
-    this.#titleEl.textContent = this.label
+    this.setAttribute('aria-label', this.label)
   }
 
   #syncMovable(): void {
@@ -696,43 +687,16 @@ export class PrettyColorPicker extends HTMLElement {
 
   #setSliderHandlePosition(handle: HTMLElement, t: number): void {
     const pct = Math.max(0, Math.min(1, t)) * 100
-    handle.style.left = `max(1px, calc(${pct}% - 1.5px))`
-  }
-
-  #getCheckerColors(): { base: Rgb255; tone: Rgb255 } {
-    const style = getComputedStyle(this)
-    const base =
-      parseHexColor(style.getPropertyValue('--pcp-checker-base').trim()) ?? { r: 255, g: 255, b: 255 }
-    const tone =
-      parseHexColor(style.getPropertyValue('--pcp-checker-tone').trim()) ?? { r: 204, g: 204, b: 204 }
-    return { base, tone }
+    handle.style.left = `${pct}%`
   }
 
   #parseHandleT(handle: HTMLElement, fallback: number): number {
-    const match = handle.style.left.match(/calc\(([\d.]+)%/)
+    const match = handle.style.left.match(/([\d.]+)%/)
     return match ? parseFloat(match[1]!) / 100 : fallback
   }
 
-  #sampleSliderBackground(t: number, kind: 'hue' | 'alpha'): Rgb255 {
-    if (kind === 'hue') return rgbAtHueSlider(t)
-    const { base, tone } = this.#getCheckerColors()
-    return compositeOverChecker(oklchToRgb(this.#color), t, base, tone)
-  }
-
-  #updateSliderHandleColor(handle: HTMLElement, t: number, kind: 'hue' | 'alpha'): void {
-    const sample = this.#sampleSliderBackground(t, kind)
-    const { backgroundColor, boxShadow } = sliderHandleStyleForRgb(
-      sample.r,
-      sample.g,
-      sample.b,
-    )
-    handle.style.backgroundColor = backgroundColor
-    handle.style.boxShadow = boxShadow
-  }
-
-  #updateSliderHandle(handle: HTMLElement, t: number, kind: 'hue' | 'alpha'): void {
+  #updateSliderHandle(handle: HTMLElement, t: number, _kind: 'hue' | 'alpha'): void {
     this.#setSliderHandlePosition(handle, t)
-    this.#updateSliderHandleColor(handle, t, kind)
   }
 
   #onPlaneMove(x: number, y: number): void {
@@ -773,8 +737,8 @@ export class PrettyColorPicker extends HTMLElement {
 
   #readHueFromSlider(): number {
     const left = this.#hueHandle.style.left
-    const match = left.match(/calc\(([\d.]+)%/)
-    if (match) return (parseFloat(match[1]) / 100) * 360
+    const match = left.match(/([\d.]+)%/)
+    if (match) return (parseFloat(match[1]!) / 100) * 360
     return this.#activePlaneHue
   }
 
@@ -903,51 +867,32 @@ export class PrettyColorPicker extends HTMLElement {
     this.#alphaInput.value = `${Math.round(nextPct)}%`
   }
 
-  #bindAlphaLabelScrub(): () => void {
-    const labelEl = this.#shadow.querySelector('.pcp-alpha-field .pcp-field-label') as HTMLElement | null
-    if (!labelEl) return () => {}
-
-    return bindHorizontalScrub(labelEl, {
-      onStart: () => {
-        this.#captureEditStart()
-        labelEl.setAttribute('data-scrubbing', 'true')
-        document.body.style.cursor = 'ew-resize'
-      },
+  #bindAlphaInputScrub(): () => void {
+    return bindInputValueScrub(this.#alphaInput, {
+      onStart: () => this.#captureEditStart(),
       onDelta: (deltaX, event) => this.#scrubAlpha(deltaX, event.shiftKey),
       onEnd: () => {
-        labelEl.removeAttribute('data-scrubbing')
-        document.body.style.cursor = ''
         this.#commitHistory()
         this.#refreshAlphaField()
       },
     })
   }
 
-  #bindFieldLabelScrubs(defs: FormatField[]): void {
+  #bindFieldInputScrubs(defs: FormatField[]): void {
     if (this.#format === 'hex') return
 
-    this.#fieldsContainer.querySelectorAll('.pcp-field-label').forEach((labelEl) => {
-      const fieldEl = labelEl.closest('.pcp-field')
-      if (!fieldEl) return
-
-      const key = [...fieldEl.classList]
-        .find((c) => c.startsWith('pcp-field-') && c !== 'pcp-field')
-        ?.slice('pcp-field-'.length)
+    this.#fieldsContainer.querySelectorAll('.pcp-field-input').forEach((inputEl) => {
+      const input = inputEl as HTMLInputElement
+      const key = input.dataset.key
       if (!key) return
 
       const def = defs.find((f) => f.key === key)
       if (!def || def.min == null || def.max == null) return
 
-      bindHorizontalScrub(labelEl as HTMLElement, {
-        onStart: () => {
-          this.#captureEditStart()
-          labelEl.setAttribute('data-scrubbing', 'true')
-          document.body.style.cursor = 'ew-resize'
-        },
+      bindInputValueScrub(input, {
+        onStart: () => this.#captureEditStart(),
         onDelta: (deltaX, event) => this.#scrubField(key, def, deltaX, event.shiftKey),
         onEnd: () => {
-          labelEl.removeAttribute('data-scrubbing')
-          document.body.style.cursor = ''
           this.#commitHistory()
           this.#refreshFields()
         },
@@ -1046,22 +991,12 @@ export class PrettyColorPicker extends HTMLElement {
   #refreshSliders(): void {
     const hue = this.#planeHue()
     const hueT = hue / 360
-
-    if (this.#hueHandle.hasAttribute('data-dragging')) {
-      this.#updateSliderHandleColor(this.#hueHandle, hueT, 'hue')
-    } else {
-      this.#updateSliderHandle(this.#hueHandle, hueT, 'hue')
-    }
+    this.#updateSliderHandle(this.#hueHandle, hueT, 'hue')
 
     const alphaT = this.#alphaHandle.hasAttribute('data-dragging')
       ? this.#parseHandleT(this.#alphaHandle, this.#color.alpha)
       : this.#color.alpha
-
-    if (this.#alphaHandle.hasAttribute('data-dragging')) {
-      this.#updateSliderHandleColor(this.#alphaHandle, alphaT, 'alpha')
-    } else {
-      this.#updateSliderHandle(this.#alphaHandle, alphaT, 'alpha')
-    }
+    this.#updateSliderHandle(this.#alphaHandle, alphaT, 'alpha')
 
     this.#refreshAlphaSlider()
   }
@@ -1091,7 +1026,6 @@ export class PrettyColorPicker extends HTMLElement {
       .map(
         (f) => `
         <div class="pcp-field pcp-field-${f.key}">
-          <span class="pcp-field-label">${f.label}</span>
           <input
             class="pcp-field-input"
             type="text"
@@ -1114,7 +1048,7 @@ export class PrettyColorPicker extends HTMLElement {
       })
     })
 
-    this.#bindFieldLabelScrubs(fields)
+    this.#bindFieldInputScrubs(fields)
 
     this.#refreshAlphaField()
   }

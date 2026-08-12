@@ -14,17 +14,12 @@
       var(--pcp-history-cols)
   );
   --pcp-control-height: var(--pcp-history-swatch-size);
-  --pcp-tab-row-height: 32px;
-  --pcp-field-label-size: 11px;
-  --pcp-field-label-line: 13.2px;
-  --pcp-field-label-gap: 3px;
+  --pcp-tab-row-height: 28px;
   --pcp-field-value-size: 11px;
   --pcp-field-value-line: 15px;
-  --pcp-field-input-height: 20px;
-  --pcp-input-panel-height: calc(
-    var(--pcp-field-label-line) + var(--pcp-field-label-gap) + var(--pcp-field-input-height)
-  );
-  --pcp-input-row-padding-y: 6px;
+  --pcp-field-input-height: 28px;
+  --pcp-input-panel-height: var(--pcp-field-input-height);
+  --pcp-input-row-padding-y: 4px;
   --pcp-input-row-padding-x: 7px;
   --pcp-alpha-col-width: 4ch;
   /* Equal value columns — flex to tray width; alpha col 6 stays fixed at 4ch */
@@ -32,16 +27,10 @@
   --pcp-swatch-code-gap: 8px;
   --pcp-history-gap: 6px;
   --pcp-checker-size: 6px;
-  --pcp-slider-handle-height: calc(var(--pcp-control-height) * 20 / 36);
+  --pcp-loupe-size: 13px;
   --pcp-field-input-radius: var(--pcp-radius-sm);
   --pcp-icon-button-size: 26px;
   --pcp-icon-button-radius: var(--pcp-radius-sm);
-  /* panel-kicker — matches Geist editor sidebars (PALETTE, PARAMETERS, etc.) */
-  --pcp-kicker-size: 11px;
-  --pcp-kicker-line: 1.2;
-  --pcp-kicker-weight: 600;
-  --pcp-kicker-tracking: 0.08em;
-  --pcp-text-kicker: #8f8f8f;
   --pcp-ease-out: cubic-bezier(0.175, 0.885, 0.32, 1.1);
   --pcp-font: 'Geist', system-ui, -apple-system, 'SF Pro Display', sans-serif;
   --pcp-mono: 'Geist Mono', ui-monospace, monospace;
@@ -72,6 +61,16 @@
 :host([mode='popover']) .pcp-header[data-dragging='true'],
 :host([movable]) .pcp-header[data-dragging='true'] {
   cursor: grabbing;
+}
+
+:host([mode='popover']) .pcp-header .pcp-tabs,
+:host([movable]) .pcp-header .pcp-tabs,
+:host([mode='popover']) .pcp-header .pcp-tab,
+:host([movable]) .pcp-header .pcp-tab,
+:host([mode='popover']) .pcp-header .pcp-header-btn,
+:host([movable]) .pcp-header .pcp-header-btn {
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
 /* Dialkit dark — https://github.com/joshpuckett/dialkit (stock theme) */
@@ -266,24 +265,9 @@
   border-bottom: 1px solid var(--pcp-divider);
 }
 
-.pcp-title[hidden] {
-  display: none;
-}
-
-.pcp-title {
+.pcp-header .pcp-tabs {
   flex: 1;
   min-width: 0;
-  font-family: var(--pcp-font);
-  font-size: var(--pcp-kicker-size);
-  font-weight: var(--pcp-kicker-weight);
-  line-height: var(--pcp-kicker-line);
-  letter-spacing: var(--pcp-kicker-tracking);
-  text-transform: uppercase;
-  color: var(--pcp-text-kicker);
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .pcp-header-btn {
@@ -333,10 +317,16 @@
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  --pcp-clip-radius: var(--pcp-radius-sm);
   margin-bottom: 0;
   cursor: crosshair;
   touch-action: none;
+  overflow: visible;
+}
+
+.pcp-plane-surface {
+  position: absolute;
+  inset: 0;
+  --pcp-clip-radius: var(--pcp-radius-sm);
 }
 
 .pcp-plane {
@@ -347,9 +337,10 @@
 
 .pcp-cursor {
   position: absolute;
-  width: 13px;
-  height: 13px;
-  margin: -6.5px 0 0 -6.5px;
+  z-index: 2;
+  width: var(--pcp-loupe-size);
+  height: var(--pcp-loupe-size);
+  margin: calc(var(--pcp-loupe-size) / -2) 0 0 calc(var(--pcp-loupe-size) / -2);
   border: 2px solid var(--pcp-cursor-ring);
   border-radius: 50%;
   box-shadow:
@@ -366,6 +357,7 @@
   position: relative;
   height: var(--pcp-control-height);
   margin-bottom: 0;
+  overflow: visible;
 }
 
 .pcp-slider {
@@ -373,9 +365,16 @@
   inset: 0;
   cursor: pointer;
   user-select: none;
-  --pcp-clip-radius: var(--pcp-radius-sm);
   background: transparent;
   touch-action: none;
+  overflow: visible;
+}
+
+.pcp-slider-track {
+  position: absolute;
+  inset: 0;
+  --pcp-clip-radius: var(--pcp-radius-sm);
+  pointer-events: none;
 }
 
 .pcp-slider-fill {
@@ -425,31 +424,28 @@
   position: absolute;
   top: 50%;
   left: 0;
-  z-index: 1;
-  width: 3px;
-  height: var(--pcp-slider-handle-height);
-  border: none;
+  z-index: 2;
+  width: var(--pcp-loupe-size);
+  height: var(--pcp-loupe-size);
+  border: 2px solid var(--pcp-cursor-ring);
   outline: none;
-  border-radius: 999px;
+  border-radius: 50%;
   background-color: transparent;
   pointer-events: none;
-  transform: translateY(-50%);
-  opacity: 0.68;
-  box-shadow: none;
+  transform: translate(-50%, -50%);
+  box-shadow:
+    0 0 0 1px var(--pcp-cursor-outline),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.12);
   filter: none;
-  transition:
-    opacity 150ms ease,
-    background-color 120ms ease,
-    box-shadow 120ms ease;
-}
-
-.pcp-slider:hover .pcp-slider-handle,
-.pcp-slider[data-active='true'] .pcp-slider-handle {
-  opacity: 0.68;
+  opacity: 1;
+  transition: box-shadow 120ms ease;
 }
 
 .pcp-slider-handle[data-dragging='true'] {
-  opacity: 0.95;
+  box-shadow:
+    0 0 0 1px var(--pcp-cursor-outline),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.12),
+    0 1px 4px rgba(0, 0, 0, 0.28);
 }
 
 .pcp-tabs {
@@ -552,11 +548,6 @@
   align-items: center;
 }
 
-.pcp-fields[data-format='hex'] .pcp-field-label {
-  text-align: center;
-  white-space: nowrap;
-}
-
 .pcp-fields[data-format='hex'] .pcp-field-input {
   width: 8ch;
   min-width: 8ch;
@@ -621,7 +612,6 @@
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  gap: var(--pcp-field-label-gap);
 }
 
 .pcp-fields[data-format='oklch'] .pcp-field-c .pcp-field-input {
@@ -629,28 +619,15 @@
   padding: 0 1px;
 }
 
-.pcp-field-label {
-  display: block;
-  font-size: var(--pcp-kicker-size);
-  font-weight: var(--pcp-kicker-weight);
-  line-height: var(--pcp-kicker-line);
-  letter-spacing: var(--pcp-kicker-tracking);
-  text-transform: uppercase;
-  color: var(--pcp-text-kicker);
-  margin: 0;
-  text-align: center;
-}
-
-.pcp-fields:not([data-format='hex']) .pcp-field-label,
-.pcp-alpha-field .pcp-field-label {
+.pcp-fields:not([data-format='hex']) .pcp-field-input,
+.pcp-alpha-field .pcp-field-input {
   cursor: ew-resize;
-  user-select: none;
   touch-action: none;
-  transition: color 150ms var(--pcp-ease-out);
 }
 
-.pcp-field-label[data-scrubbing='true'] {
-  color: var(--pcp-text-muted);
+.pcp-field-input[data-scrubbing='true'] {
+  color: var(--pcp-text-focus);
+  cursor: ew-resize;
 }
 
 .pcp-field-input {
@@ -686,6 +663,7 @@
   border-radius: var(--pcp-field-input-radius);
   box-shadow: none;
   outline: none;
+  cursor: text;
 }
 
 .pcp-field-input:active {
@@ -694,16 +672,6 @@
 
 .pcp-history-section[hidden] {
   display: none;
-}
-
-.pcp-history-label {
-  font-size: var(--pcp-kicker-size);
-  font-weight: var(--pcp-kicker-weight);
-  line-height: var(--pcp-kicker-line);
-  letter-spacing: var(--pcp-kicker-tracking);
-  text-transform: uppercase;
-  color: var(--pcp-text-kicker);
-  margin: 0 0 5px;
 }
 
 .pcp-history {
