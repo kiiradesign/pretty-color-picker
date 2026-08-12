@@ -18,7 +18,12 @@
   --pcp-slider-height: 36px;
   --pcp-slider-handle-width: 3px;
   --pcp-slider-handle-height: 20px;
-  --pcp-tab-row-height: 28px;
+  /* Format tabs — DialKit pill; taller on desktop */
+  --pcp-tabs-radius: 8px;
+  --pcp-tabs-pill-radius: 6px;
+  --pcp-tab-font-size: 11px;
+  --pcp-tab-padding-y: 6px;
+  --pcp-tab-padding-x: 8px;
   --pcp-field-value-size: 11px;
   --pcp-field-value-line: 15px;
   --pcp-field-input-height: 28px;
@@ -263,7 +268,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
   margin-bottom: 0;
   min-height: var(--pcp-icon-button-size);
   border-bottom: 1px solid var(--pcp-divider);
@@ -451,13 +456,12 @@
 .pcp-tabs {
   position: relative;
   display: flex;
-  align-items: center;
-  height: var(--pcp-tab-row-height);
+  align-items: stretch;
   box-sizing: border-box;
   padding: 2px;
   margin-bottom: 0;
   background: transparent;
-  border-radius: var(--pcp-radius);
+  border-radius: var(--pcp-tabs-radius);
 }
 
 .pcp-tabs-pill {
@@ -466,8 +470,8 @@
   bottom: 2px;
   left: 0;
   width: 0;
-  background: var(--pcp-tab-pill);
-  border-radius: 5px;
+  background: var(--pcp-surface-active);
+  border-radius: var(--pcp-tabs-pill-radius);
   z-index: 0;
   pointer-events: none;
   transition: left 200ms var(--pcp-ease-out), width 200ms var(--pcp-ease-out);
@@ -480,18 +484,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  padding: 0 4px;
+  padding: var(--pcp-tab-padding-y) var(--pcp-tab-padding-x);
   font-family: inherit;
-  font-size: 11px;
+  font-size: var(--pcp-tab-font-size);
   font-weight: 500;
   line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
   text-align: center;
   background: transparent;
   border: none;
   color: var(--pcp-text-label);
   cursor: pointer;
-  transition: color 150ms var(--pcp-ease-out), transform 160ms var(--pcp-ease-out);
+  transition: color 150ms var(--pcp-ease-out);
 }
 
 .pcp-tab[data-active='true'] {
@@ -500,6 +505,12 @@
 
 .pcp-tab:active {
   transform: scale(0.97);
+}
+
+@media (min-width: 641px) {
+  :host {
+    --pcp-tab-padding-y: 9px;
+  }
 }
 
 /* One grid for every color mode — alpha column 6 never changes position or width */
